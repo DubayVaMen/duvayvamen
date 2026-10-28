@@ -327,10 +327,10 @@ footer a{color:var(--ink)}
     <div>
       <b>dubayvamen.uz</b><br>
       Dubay va BAA bo‘yicha ekskursiyalar, chiptalar va vizalar.<br>
-      Aloqa uchun: <a href="tel:+971553760330">+971 55 376 0330</a>
+      Aloqa uchun: <a href="tel:+971553760330" id="fPhone">+971 55 376 0330</a>
     </div>
     <div><b>Mijozlarga</b><br>Ko‘p so‘raladigan savollar<br>Bekor qilish shartlari<br>Ommaviy oferta</div>
-    <div><b>Aloqa</b><br><a href="https://t.me/dubayvamenbot" target="_blank" rel="noopener">Telegram</a><br><a href="#">Instagram</a><br>info@dubayvamen.uz</div>
+    <div><b>Aloqa</b><br><a href="https://t.me/dubayvamenbot" target="_blank" rel="noopener" id="fTg">Telegram</a><br><a href="#" target="_blank" rel="noopener" id="fIg" hidden>Instagram<br></a><span id="fEmail">info@dubayvamen.uz</span></div>
   </div>
 </footer>
 
@@ -368,7 +368,8 @@ footer a{color:var(--ink)}
 
 <script>
 /* ===== Sozlamalar (admin paneldan keladi) ===== */
-const RATES = { USD: 1, AED: 3.6725 }; // namuna kurs, backenddan yangilanadi
+const RATES = { USD: 1, AED: 3.6725 }; // AED kursi /api/data dan yangilanadi
+let ITEMS = []; // turlar /api/data dan yuklanadi
 const CATS = [
   { id: "attr", name: "Diqqatga sazovor joylar" },
   { id: "safari", name: "Cho‘l safari" },
@@ -384,65 +385,6 @@ const GROUPS = [
   { name: "Ekskursiyalar", cats: ["city", "safari", "cruise"] },
   { name: "Turlar va biletlar", cats: ["attr", "park", "event"] },
   { name: "Viza va transfer", cats: ["visa"] }
-];
-const GRAD = {
-  attr: "linear-gradient(160deg,#2F5FC9,#8EC5F2)", safari: "linear-gradient(160deg,#D9692C,#F6C46B)",
-  cruise: "linear-gradient(160deg,#0A5A85,#38BAC3)", park: "linear-gradient(160deg,#7136D1,#E45FA4)",
-  event: "linear-gradient(160deg,#261B57,#C2577A)", city: "linear-gradient(160deg,#17775A,#9BD27A)",
-  visa: "linear-gradient(160deg,#334155,#93A3B8)"
-};
-const ITEMS = [
-  { id: 1, cat: "attr", ico: "🗼", t: "Burj Khalifa: 124–125-qavat", p: 45, old: 0, r: 4.8, n: 2140, dur: "1–2 soat", city: "Dubay", pop: 99,
-    d: "Dunyodagi eng baland binoning kuzatuv maydonchasi. Quyosh botishidagi vaqt oralig‘ini oldindan band qilish tavsiya etiladi.",
-    inc: ["Kirish chiptasi", "Tezkor lift", "Audio gid (rus tilida)"] },
-  { id: 2, cat: "safari", ico: "🐪", t: "Kechki cho‘l safari: BBQ va shou", p: 39, old: 55, r: 4.7, n: 3310, dur: "6 soat", city: "Dubay", pop: 98,
-    d: "Jip bilan qum tepaliklarida sayr, tuya minish, sendbording, kechki ovqat va tanura shou.",
-    inc: ["Mehmonxonadan olib ketish", "Bufet kechki ovqat", "Tuya minish", "Shou dasturi"] },
-  { id: 3, cat: "cruise", ico: "⛵", t: "Marinada dhow kruiz, kechki ovqat bilan", p: 35, old: 0, r: 4.5, n: 1180, dur: "2 soat", city: "Dubay", pop: 90,
-    d: "An’anaviy yog‘och qayiqda Dubay Marina bo‘ylab sayr. Bufet, jonli musiqa.",
-    inc: ["Bufet kechki ovqat", "Ichimliklar", "Jonli musiqa"] },
-  { id: 4, cat: "attr", ico: "🖼️", t: "Dubay Frame", p: 14, old: 0, r: 4.6, n: 940, dur: "1 soat", city: "Dubay", pop: 80,
-    d: "150 metrlik ramka: bir tomonda eski Dubay, ikkinchi tomonda yangi shahar.",
-    inc: ["Kirish chiptasi", "Shisha pol ko‘prigi"] },
-  { id: 5, cat: "attr", ico: "🔭", t: "Kelajak muzeyi", p: 46, old: 0, r: 4.7, n: 1620, dur: "2–3 soat", city: "Dubay", pop: 92,
-    d: "Kelajak texnologiyalari haqidagi interaktiv muzey. Sessiya vaqtini tanlash kerak.",
-    inc: ["Kirish chiptasi", "Barcha qavatlar"] },
-  { id: 6, cat: "park", ico: "🌊", t: "Atlantis Aquaventure aquaparki", p: 85, old: 110, r: 4.8, n: 1870, dur: "Kun bo‘yi", city: "Dubay", pop: 94,
-    d: "Dunyodagi eng katta aquaparklardan biri: 100 dan ortiq attraksion va xususiy plyaj.",
-    inc: ["Kun bo‘yi kirish", "Plyaj", "Shkafcha (chegirma bilan)"] },
-  { id: 7, cat: "park", ico: "🎢", t: "IMG Worlds of Adventure", p: 75, old: 99, r: 4.4, n: 760, dur: "Kun bo‘yi", city: "Dubay", pop: 78,
-    d: "Yopiq tematik park — yozda ham salqin. Bolalar va kattalar uchun zonalar.",
-    inc: ["Kun bo‘yi kirish", "Barcha attraksionlar"] },
-  { id: 8, cat: "city", ico: "🕌", t: "Dubay shahar turi (yarim kun)", p: 29, old: 0, r: 4.5, n: 1050, dur: "4 soat", city: "Dubay", pop: 85,
-    d: "Jumeyra masjidi, Burj al-Arab, Palma oroli, eski shahar va oltin bozori.",
-    inc: ["Transport", "Rus tilida gid", "Abra qayig‘i"] },
-  { id: 9, cat: "city", ico: "🕍", t: "Abu-Dabi turi: Shayx Zoid masjidi", p: 55, old: 69, r: 4.7, n: 1430, dur: "10 soat", city: "Abu-Dabi", pop: 88,
-    d: "Dubaydan Abu-Dabiga sayohat: Shayx Zoid masjidi, Qasr al-Vatan va qirg‘oq bo‘yi.",
-    inc: ["Transport", "Gid", "Tushlik"] },
-  { id: 10, cat: "park", ico: "🏎️", t: "Ferrari World, Abu-Dabi", p: 95, old: 0, r: 4.6, n: 690, dur: "Kun bo‘yi", city: "Abu-Dabi", pop: 76,
-    d: "Dunyodagi eng tez rollercoaster joylashgan yopiq park.",
-    inc: ["Kun bo‘yi kirish"] },
-  { id: 11, cat: "cruise", ico: "🛥️", t: "Yaxta ijarasi, 2 soat (10 kishigacha)", p: 220, old: 260, r: 4.9, n: 210, dur: "2 soat", city: "Dubay", pop: 70, group: true,
-    d: "Marinadan Palma va Burj al-Arabgacha shaxsiy yaxta. Narx butun yaxta uchun.",
-    inc: ["Kapitan va ekipaj", "Suv va muz", "Musiqa tizimi"] },
-  { id: 12, cat: "attr", ico: "🐠", t: "Dubay akvariumi va suv osti zoo", p: 42, old: 0, r: 4.5, n: 820, dur: "2 soat", city: "Dubay", pop: 74,
-    d: "Dubay Mall ichidagi ulkan akvarium, tunnel va suv osti hayvonot bog‘i.",
-    inc: ["Akvarium tunneli", "Suv osti zoo"] },
-  { id: 13, cat: "event", ico: "🎡", t: "Global Village", p: 7, old: 0, r: 4.6, n: 1980, dur: "Kechqurun", city: "Dubay", pop: 86,
-    d: "90 dan ortiq mamlakat paviloni, ko‘cha taomlari, shou va attraksionlar. Mavsum: oktyabr–may.",
-    inc: ["Kirish chiptasi"] },
-  { id: 14, cat: "event", ico: "💧", t: "Suv va akrobatika shousi", p: 49, old: 0, r: 4.8, n: 530, dur: "90 daqiqa", city: "Dubay", pop: 72,
-    d: "Suv sahnasida akrobatlar ishtirokidagi teatr shousi. O‘rindiq toifasini tanlang.",
-    inc: ["Shou chiptasi"] },
-  { id: 15, cat: "safari", ico: "🏍️", t: "Kvadrotsikl va cho‘l safari", p: 65, old: 79, r: 4.6, n: 640, dur: "7 soat", city: "Dubay", pop: 77,
-    d: "30 daqiqa kvadrotsiklda haydash, so‘ng kechki safari dasturi.",
-    inc: ["Kvadrotsikl 30 daqiqa", "Transport", "Kechki ovqat"] },
-  { id: 16, cat: "visa", ico: "🛂", t: "BAA turistik vizasi, 30 kun", p: 95, old: 0, r: 4.9, n: 2600, dur: "3–5 ish kuni", city: "Onlayn", pop: 96, nokids: true,
-    d: "Pasport nusxasi va rasm yetarli. Tayyor viza Telegram va pochtangizga yuboriladi.",
-    inc: ["Hujjatlarni tekshirish", "Davlat boji", "Sug‘urta"] },
-  { id: 17, cat: "visa", ico: "🚖", t: "Aeroport transferi (DXB → mehmonxona)", p: 30, old: 0, r: 4.7, n: 980, dur: "Bir tomon", city: "Dubay", pop: 82, group: true,
-    d: "Haydovchi sizni chiqishda ismingiz yozilgan taxtacha bilan kutadi. 4 kishigacha.",
-    inc: ["Kutish 60 daqiqa", "Suv", "Bagaj"] }
 ];
 
 /* ===== Holat ===== */
@@ -468,7 +410,7 @@ const WD = ["Ya","Du","Se","Ch","Pa","Ju","Sh"];
 function fmtDate(iso) { const d = new Date(iso + "T00:00:00"); return d.getDate() + " " + MONTHS[d.getMonth()]; }
 const kidPrice = it => it.group || it.nokids ? 0 : it.p * 0.75;
 function lineTotal(l) { const it = byId(l.id); return it.group ? it.p : it.p * l.adults + kidPrice(it) * l.kids; }
-const photo = it => `<img src="img/tours/${it.id}.jpg" alt="" loading="lazy" decoding="async" width="800" height="500">`;
+const photo = it => it.img ? `<img src="${esc(it.img)}" alt="" loading="lazy" decoding="async" width="800" height="500">` : "";
 function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
 
 /* ===== Katalog ===== */
@@ -589,7 +531,7 @@ $("#cBody").addEventListener("click", e => {
   const b = e.target.closest("[data-rm]"); if (!b) return;
   S.cart.splice(Number(b.dataset.rm), 1); store.set("dv_cart", S.cart); renderBadge(); openCart();
 });
-function submitOrder(e) {
+async function submitOrder(e) {
   e.preventDefault();
   const f = e.target, err = $("#formErr");
   if (!f.name.value.trim()) { err.textContent = "Ismingizni kiriting."; f.name.focus(); return; }
@@ -599,7 +541,15 @@ function submitOrder(e) {
     name: f.name.value.trim(), phone: f.phone.value.trim(), tg: f.tg.value.trim(),
     items: S.cart.map(l => ({ ...l, title: byId(l.id).t, sum: lineTotal(l) })), totalUsd: cartTotal(), cur: S.cur
   };
-  /* Bu yerda backendga yuboriladi: POST /api/orders */
+  const btn = $("#cFoot button[type=submit]");
+  btn.disabled = true; btn.textContent = "Yuborilmoqda…"; err.textContent = "";
+  try {
+    const r = await fetch("/api/orders", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(order) });
+    if (!r.ok) throw new Error();
+  } catch (x) {
+    err.textContent = "Buyurtma yuborilmadi. Internetni tekshirib, qayta urinib ko‘ring.";
+    btn.disabled = false; btn.textContent = "Buyurtma berish"; return;
+  }
   S.orders.unshift(order); store.set("dv_orders", S.orders);
   S.cart = []; store.set("dv_cart", S.cart); renderBadge(); haptic("success");
   $("#cBody").innerHTML = `<div class="done"><div class="big" aria-hidden="true">✅</div><h3>Buyurtma qabul qilindi</h3>
@@ -686,11 +636,34 @@ if (TG) {
   TG.MainButton.onClick(() => openCart(true));
   TG.BackButton.onClick(closeSheets);
   $("#tgLink").closest(".tg-band").style.display = "none";
-  const start = TG.initDataUnsafe && TG.initDataUnsafe.start_param; // masalan t.me/dubayvamenbot?startapp=2
-  if (start && byId(Number(start))) setTimeout(() => openDetail(Number(start)), 300);
 }
 
-renderTabs(); renderGrid(); renderBadge();
+/* ===== Ma’lumotlarni yuklash (admin paneldan boshqariladi) ===== */
+function applySettings(s) {
+  if (s.aed) RATES.AED = s.aed;
+  if (s.phone) { $("#fPhone").textContent = s.phone; $("#fPhone").href = "tel:" + s.phone.replace(/[^\d+]/g, ""); }
+  if (s.telegram) {
+    $("#fTg").href = $("#tgLink").href = s.telegram;
+    const h = s.telegram.match(/t\.me\/([\w]+)/); if (h) $("#tgLink").textContent = "@" + h[1];
+  }
+  if (s.instagram) { $("#fIg").href = s.instagram; $("#fIg").hidden = false; }
+  $("#fEmail").textContent = s.email || "";
+}
+async function load() {
+  $("#grid").innerHTML = `<div class="empty">Yuklanmoqda…</div>`;
+  try {
+    const d = await (await fetch("/api/data")).json();
+    ITEMS = d.tours; applySettings(d.settings || {});
+  } catch (e) {
+    $("#grid").innerHTML = `<div class="empty">Katalogni yuklab bo‘lmadi. Sahifani yangilang.</div>`; return;
+  }
+  // o‘chirilgan turlar savatda qolib ketmasin
+  S.cart = S.cart.filter(l => byId(l.id)); store.set("dv_cart", S.cart);
+  renderTabs(); renderGrid(); renderBadge();
+  const start = TG && TG.initDataUnsafe && TG.initDataUnsafe.start_param; // masalan t.me/dubayvamenbot?startapp=2
+  if (start && byId(Number(start))) setTimeout(() => openDetail(Number(start)), 300);
+}
+load();
 </script>
 </body>
 </html>

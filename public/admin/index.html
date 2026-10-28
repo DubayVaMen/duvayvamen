@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>dubayvamen — admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F5F9;--surface:#FFFFFF;--ink:#152033;--muted:#5D6678;--line:#E2E6ED;--chip:#EDF0F5;
+  --sea:#0B7A84;--sea-ink:#FFFFFF;--sea-soft:#E3F3F4;--gold:#E29A2F;--sale:#C93C34;--ok:#1C8A4E;
+  --display:"Unbounded","Manrope",system-ui,sans-serif;--body:"Manrope",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0E1420;--surface:#161F30;--ink:#E7ECF4;--muted:#9AA5B8;--line:#263248;--chip:#1D283C;
+  --sea:#36B7C1;--sea-ink:#04282C;--sea-soft:#14323A;--gold:#F0B35A;--sale:#F06A61;--ok:#4CC584;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0E1420;--surface:#161F30;--ink:#E7ECF4;--muted:#9AA5B8;--line:#263248;--chip:#1D283C;
+  --sea:#36B7C1;--sea-ink:#04282C;--sea-soft:#14323A;--gold:#F0B35A;--sale:#F06A61;--ok:#4CC584;color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:6px}
+[hidden]{display:none!important}
+.btn{border:0;border-radius:12px;height:42px;padding:0 16px;font-weight:700;background:var(--sea);color:var(--sea-ink);display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;white-space:nowrap}
+.btn:hover{filter:brightness(1.06)}
+.btn.ghost{background:var(--chip);color:var(--ink)}
+.btn.danger{background:transparent;color:var(--sale);border:1px solid var(--line)}
+.btn.sm{height:34px;padding:0 12px;font-size:13.5px;border-radius:10px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+input,select,textarea{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:0 12px;height:42px}
+textarea{height:auto;padding:10px 12px;resize:vertical;min-height:90px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--sea);outline-offset:0;border-color:transparent}
+label.f{display:grid;gap:6px;font-weight:700;font-size:13.5px}
+label.f small{font-weight:500;color:var(--muted)}
+.req::after{content:" *";color:var(--sale)}
+
+/* login */
+.login{min-height:100vh;display:grid;place-items:center;padding:20px}
+.login form{width:min(380px,100%);background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:28px;display:grid;gap:14px;box-shadow:0 20px 60px rgba(10,14,30,.12)}
+.login h1{font-family:var(--display);font-size:22px;margin:0}
+.login p{margin:0;color:var(--muted)}
+.err{color:var(--sale);font-weight:600;min-height:1.2em;font-size:14px}
+
+/* shell */
+.top{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.top .in{max-width:1280px;margin:0 auto;padding:0 20px;height:60px;display:flex;align-items:center;gap:16px}
+.brand{font-family:var(--display);font-weight:700;font-size:17px;white-space:nowrap}
+.brand span{font-family:var(--body);font-size:12px;font-weight:700;color:var(--sea);background:var(--sea-soft);border-radius:6px;padding:2px 6px;margin-left:6px;vertical-align:middle}
+.nav{display:flex;gap:4px;margin-left:12px}
+.nav button{border:0;background:none;border-radius:10px;padding:8px 14px;font-weight:700;color:var(--muted);position:relative}
+.nav button[aria-current="page"]{background:var(--chip);color:var(--ink)}
+.nav .cnt{background:var(--sale);color:#fff;border-radius:9px;font-size:11.5px;padding:1px 6px;margin-left:6px}
+.top .right{margin-left:auto;display:flex;gap:8px}
+main{max-width:1280px;margin:0 auto;padding:20px}
+
+/* tours */
+.tours{display:grid;grid-template-columns:minmax(300px,400px) 1fr;gap:20px;align-items:start}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:18px}
+.list-head{padding:14px;display:grid;gap:10px;border-bottom:1px solid var(--line)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font-weight:700;font-size:13px}
+.chips button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.rows{max-height:calc(100vh - 250px);overflow-y:auto}
+.row{display:flex;gap:12px;align-items:center;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:none;padding:10px 14px}
+.row:hover{background:var(--bg)}
+.row[aria-current="true"]{background:var(--sea-soft)}
+.row img,.row .noimg{width:64px;height:46px;border-radius:8px;object-fit:cover;flex:none;background:var(--chip)}
+.row .i{flex:1;min-width:0}
+.row b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row span{color:var(--muted);font-size:12.5px}
+.row .pr{font-weight:800;font-size:14px}
+.off-badge{font-size:11px;font-weight:800;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:0 5px;margin-left:4px}
+.editor{padding:20px}
+.ed-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.ed-head h2{margin:0;font-family:var(--display);font-size:19px}
+.dirty{color:var(--gold);font-weight:700;font-size:13.5px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.form{display:grid;gap:16px}
+.sec-t{font-weight:800;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:8px 0 -4px}
+.photo{position:relative;border:2px dashed var(--line);border-radius:14px;aspect-ratio:16/8;max-height:240px;width:100%;overflow:hidden;display:grid;place-items:center;background:var(--bg);cursor:pointer}
+.photo.drag{border-color:var(--sea);background:var(--sea-soft)}
+.photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.photo .ph{text-align:center;color:var(--muted);font-weight:600;padding:16px;position:relative}
+.photo .ph b{display:block;color:var(--ink);font-size:16px}
+.photo .chg{position:absolute;right:10px;bottom:10px;background:rgba(10,14,30,.7);color:#fff;border-radius:10px;padding:6px 12px;font-weight:700;font-size:13px}
+.photo .busy{position:absolute;inset:0;background:rgba(10,14,30,.55);color:#fff;display:grid;place-items:center;font-weight:700}
+.checks{display:grid;gap:10px}
+.check{display:flex;gap:10px;align-items:flex-start;font-weight:600;cursor:pointer}
+.check input{width:20px;height:20px;margin:1px 0 0;flex:none;accent-color:var(--sea)}
+.check small{display:block;color:var(--muted);font-weight:500}
+.actions{display:flex;gap:10px;flex-wrap:wrap;padding-top:6px;border-top:1px solid var(--line);margin-top:4px;padding-top:16px}
+.actions .sp{flex:1}
+.hint{color:var(--muted);font-size:13px;font-weight:500}
+.empty{padding:40px 20px;text-align:center;color:var(--muted)}
+
+/* orders */
+.ord-head{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px}
+.ord-head h2,.set h2{margin:0;font-family:var(--display);font-size:20px}
+.orders{display:grid;gap:12px}
+.order{padding:16px;display:grid;grid-template-columns:1fr auto;gap:10px 16px}
+.order .who b{font-size:16px}
+.order .who a{color:var(--sea);font-weight:700;text-decoration:none}
+.order .meta{color:var(--muted);font-size:13px}
+.order ul{margin:6px 0 0;padding-left:18px}
+.order .side{display:grid;gap:8px;justify-items:end;align-content:start}
+.order .sum{font-weight:800;font-size:18px}
+.st{font-weight:800;font-size:12px;border-radius:999px;padding:3px 10px}
+.st.new{background:#FDE8D0;color:#8A4B06}.st.confirmed{background:var(--sea-soft);color:var(--sea)}
+.st.done{background:#DDF3E6;color:var(--ok)}.st.cancelled{background:var(--chip);color:var(--muted)}
+.order select{height:36px;width:auto}
+
+/* settings */
+.set{max-width:640px;padding:22px;display:grid;gap:16px}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:12px;font-weight:700;opacity:0;transition:.2s;z-index:50;pointer-events:none}
+.toast.on{opacity:1;transform:translateX(-50%)}
+.toast.bad{background:var(--sale);color:#fff}
+
+@media (max-width:860px){
+  .top .in{padding:0 14px;gap:8px}
+  .brand span,.top .right .site{display:none}
+  .nav{margin-left:0}
+  .nav button{padding:8px 10px}
+  main{padding:14px}
+  .tours{grid-template-columns:minmax(0,1fr)}
+  .tours.editing .list{display:none}
+  .tours:not(.editing) .editor-wrap{display:none}
+  .rows{max-height:none}
+  .grid3{grid-template-columns:1fr 1fr}
+  .order{grid-template-columns:1fr}
+  .order .side{justify-items:start;grid-auto-flow:column;align-items:center;justify-content:start}
+}
+@media (max-width:520px){
+  .grid2{grid-template-columns:1fr}
+  .brand{display:none}
+  .nav button{padding:8px;font-size:14px}
+  .nav .cnt{margin-left:4px}
+}
+.grid2,.grid3{align-items:end}
+.back{display:none}
+@media (max-width:860px){.back{display:inline-flex}}
+</style>
+</head>
+<body>
+
+<!-- Kirish -->
+<div class="login" id="loginView" hidden>
+  <form id="loginForm">
+    <h1>dubayvamen admin</h1>
+    <p>Davom etish uchun parolni kiriting.</p>
+    <label class="f">Parol<input type="password" name="password" autocomplete="current-password" required autofocus></label>
+    <div class="err" id="loginErr" role="alert"></div>
+    <button class="btn" type="submit">Kirish</button>
+  </form>
+</div>
+
+<!-- Panel -->
+<div id="app" hidden>
+  <header class="top"><div class="in">
+    <div class="brand">dubayvamen<span>admin</span></div>
+    <nav class="nav" aria-label="Bo‘limlar">
+      <button type="button" data-view="tours" aria-current="page">Turlar</button>
+      <button type="button" data-view="orders">Buyurtmalar<span class="cnt" id="newCnt" hidden></span></button>
+      <button type="button" data-view="settings">Sozlamalar</button>
+    </nav>
+    <div class="right">
+      <a class="btn ghost sm site" href="/" target="_blank" rel="noopener">Saytni ochish ↗</a>
+      <button class="btn ghost sm" type="button" id="logout">Chiqish</button>
+    </div>
+  </div></header>
+
+  <main>
+    <!-- Turlar -->
+    <section id="v-tours" class="tours">
+      <div class="panel list">
+        <div class="list-head">
+          <button class="btn" type="button" id="addTour">+ Yangi tur qo‘shish</button>
+          <input type="search" id="tq" placeholder="Nomi bo‘yicha qidirish…" aria-label="Qidirish">
+          <div class="chips" id="cityChips"></div>
+        </div>
+        <div class="rows" id="rows"></div>
+      </div>
+      <div class="panel editor-wrap"><div class="editor" id="editor"></div></div>
+    </section>
+
+    <!-- Buyurtmalar -->
+    <section id="v-orders" hidden>
+      <div class="ord-head">
+        <h2>Buyurtmalar</h2>
+        <div class="chips" id="ordChips"></div>
+        <button class="btn ghost sm" type="button" id="reloadOrders">Yangilash</button>
+      </div>
+      <div class="orders" id="orders"></div>
+    </section>
+
+    <!-- Sozlamalar -->
+    <section id="v-settings" hidden>
+      <form class="panel set" id="setForm">
+        <h2>Sozlamalar</h2>
+        <p class="hint" style="margin:0">Bu ma’lumotlar saytning pastki qismida va Telegram tugmasida ko‘rinadi.</p>
+        <label class="f">Aloqa telefoni<input name="phone" placeholder="+971 55 376 0330"></label>
+        <label class="f">Telegram havolasi<input name="telegram" placeholder="https://t.me/dubayvamenbot"></label>
+        <label class="f">Instagram havolasi <small>bo‘sh qoldirsangiz saytda ko‘rinmaydi</small><input name="instagram" placeholder="https://instagram.com/…"></label>
+        <label class="f">Email<input name="email" type="email" placeholder="info@dubayvamen.uz"></label>
+        <label class="f">1 USD necha AED <small>AED narxlarni hisoblash uchun</small><input name="aed" type="number" step="0.0001" min="0.1"></label>
+        <div><button class="btn" type="submit">Saqlash</button></div>
+      </form>
+    </section>
+  </main>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+<input type="file" id="file" accept="image/jpeg,image/png,image/webp" hidden>
+
+<script>
+const CITIES = ["Dubay", "Abu-Dabi", "Onlayn"];
+const CATS = [
+  { id: "city", name: "Ekskursiya · Shahar turi" },
+  { id: "safari", name: "Ekskursiya · Cho‘l safari" },
+  { id: "cruise", name: "Ekskursiya · Kruiz va yaxta" },
+  { id: "attr", name: "Bilet · Diqqatga sazovor joy" },
+  { id: "park", name: "Bilet · Park" },
+  { id: "event", name: "Bilet · Shou va tadbir" },
+  { id: "visa", name: "Viza va transfer" }
+];
+const STATUSES = { new: "Yangi", confirmed: "Tasdiqlandi", done: "Bajarildi", cancelled: "Bekor qilindi" };
+
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} }
+};
+let TOKEN = store.get("dv_admin");
+let DATA = null, ORDERS = [], sel = null, draft = null, dirty = false, cityF = "all", ordF = "all";
+
+function toast(msg, bad) {
+  const t = $("#toast"); t.textContent = msg; t.className = "toast on" + (bad ? " bad" : "");
+  clearTimeout(t._t); t._t = setTimeout(() => t.className = "toast", 2200);
+}
+async function api(path, opts = {}) {
+  const r = await fetch(path, { ...opts, headers: { ...(opts.body && !(opts.body instanceof Blob) ? { "content-type": "application/json" } : {}), ...(opts.headers || {}), authorization: "Bearer " + TOKEN } });
+  if (r.status === 401 && path !== "/api/admin/login") { logout(); throw new Error("Qayta kiring"); }
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || "Xatolik: " + r.status);
+  return j;
+}
+
+/* ===== Kirish ===== */
+$("#loginForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const err = $("#loginErr"); err.textContent = "";
+  try {
+    const r = await fetch("/api/admin/login", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ password: e.target.password.value }) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error || "Kirib bo‘lmadi");
+    TOKEN = j.token; store.set("dv_admin", TOKEN); e.target.reset(); start();
+  } catch (x) { err.textContent = x.message; }
+});
+function logout() { TOKEN = null; store.set("dv_admin", null); $("#app").hidden = true; $("#loginView").hidden = false; }
+$("#logout").onclick = () => { if (!dirty || confirm("Saqlanmagan o‘zgarishlar bor. Baribir chiqasizmi?")) logout(); };
+
+async function start() {
+  if (!TOKEN) return logout();
+  try {
+    DATA = await api("/api/admin/data");
+  } catch (x) { if (TOKEN) toast(x.message, true); return; }
+  $("#loginView").hidden = true; $("#app").hidden = false;
+  renderList(); renderEditor(); fillSettings(); loadOrders();
+}
+
+/* ===== Bo‘limlar ===== */
+document.querySelector(".nav").addEventListener("click", e => {
+  const b = e.target.closest("[data-view]"); if (!b) return;
+  document.querySelectorAll(".nav button").forEach(x => x.removeAttribute("aria-current"));
+  b.setAttribute("aria-current", "page");
+  ["tours", "orders", "settings"].forEach(v => $("#v-" + v).hidden = v !== b.dataset.view);
+  if (b.dataset.view === "orders") loadOrders();
+});
+
+/* ===== Turlar ro‘yxati ===== */
+const catName = id => (CATS.find(c => c.id === id) || { name: id }).name;
+function renderList() {
+  $("#cityChips").innerHTML = ["all", ...CITIES].map(c =>
+    `<button type="button" data-city="${c}" aria-pressed="${cityF === c}">${c === "all" ? "Hammasi" : c} <span style="opacity:.6">${DATA.tours.filter(t => c === "all" || t.city === c).length}</span></button>`).join("");
+  const q = $("#tq").value.trim().toLowerCase();
+  const list = DATA.tours.filter(t => (cityF === "all" || t.city === cityF) && (!q || t.t.toLowerCase().includes(q)))
+    .sort((a, b) => a.city.localeCompare(b.city) || b.pop - a.pop);
+  $("#rows").innerHTML = list.length ? list.map(t => `
+    <button class="row" type="button" data-id="${t.id}" aria-current="${sel === t.id}">
+      ${t.img ? `<img src="${esc(t.img)}" alt="" loading="lazy">` : `<span class="noimg"></span>`}
+      <span class="i"><b>${esc(t.t) || "Nomsiz tur"}</b><span>${esc(t.city)} · ${esc(catName(t.cat))}${t.active === false ? '<span class="off-badge">yashirin</span>' : ""}</span></span>
+      <span class="pr">$${t.p}</span>
+    </button>`).join("") : `<div class="empty">Hech narsa topilmadi</div>`;
+}
+$("#tq").addEventListener("input", renderList);
+$("#cityChips").addEventListener("click", e => { const b = e.target.closest("[data-city]"); if (b) { cityF = b.dataset.city; renderList(); } });
+$("#rows").addEventListener("click", e => { const b = e.target.closest("[data-id]"); if (b) select(Number(b.dataset.id)); });
+
+function select(id) {
+  if (dirty && sel !== id && !confirm("Saqlanmagan o‘zgarishlar yo‘qoladi. Davom etasizmi?")) return;
+  sel = id; dirty = false;
+  const t = DATA.tours.find(x => x.id === id);
+  draft = t ? JSON.parse(JSON.stringify(t)) : null;
+  $("#v-tours").classList.toggle("editing", !!draft);
+  renderList(); renderEditor();
+  if (innerWidth <= 860) scrollTo({ top: 0 });
+}
+$("#addTour").onclick = () => {
+  if (dirty && !confirm("Saqlanmagan o‘zgarishlar yo‘qoladi. Davom etasizmi?")) return;
+  const id = Math.max(0, ...DATA.tours.map(t => t.id)) + 1;
+  sel = id; dirty = true;
+  draft = { id, city: cityF !== "all" ? cityF : "Dubay", cat: "city", t: "", p: 0, old: 0, r: 5, n: 0, pop: 50, dur: "", d: "", inc: [], img: "", group: false, nokids: false, active: true, _new: true };
+  $("#v-tours").classList.add("editing");
+  renderList(); renderEditor();
+  setTimeout(() => $("#editor [name=t]").focus(), 50);
+};
+
+/* ===== Tahrirlash ===== */
+function renderEditor() {
+  const ed = $("#editor");
+  if (!draft) { ed.innerHTML = `<div class="empty"><b style="color:var(--ink);font-size:16px">Turni tanlang</b><br>Chapdagi ro‘yxatdan turni bosing yoki “Yangi tur qo‘shish” tugmasini bosing.</div>`; return; }
+  const t = draft;
+  ed.innerHTML = `
+    <div class="ed-head">
+      <button class="btn ghost sm back" type="button" id="back">← Ro‘yxat</button>
+      <h2>${t._new ? "Yangi tur" : "Turni tahrirlash"}</h2>
+      <span class="dirty" id="dirtyMark" ${dirty ? "" : "hidden"}>● Saqlanmagan</span>
+    </div>
+    <form class="form" id="tf" novalidate>
+      <div class="photo" id="photo" tabindex="0" role="button" aria-label="Rasm yuklash">
+        ${t.img ? `<img src="${esc(t.img)}" alt=""><span class="chg">Rasmni almashtirish</span>`
+                : `<div class="ph"><b>Rasm yuklang</b>Bosing yoki rasmni shu yerga tashlang<br><small>JPG, PNG yoki WEBP — o‘zi kichraytiriladi</small></div>`}
+      </div>
+      <label class="f"><span class="req">Tur nomi</span><input name="t" value="${esc(t.t)}" placeholder="Masalan: Burj Khalifa: 124–125-qavat" required></label>
+      <div class="grid2">
+        <label class="f">Shahar<select name="city">${CITIES.map(c => `<option ${c === t.city ? "selected" : ""}>${c}</option>`).join("")}</select></label>
+        <label class="f">Bo‘lim<select name="cat">${CATS.map(c => `<option value="${c.id}" ${c.id === t.cat ? "selected" : ""}>${c.name}</option>`).join("")}</select></label>
+      </div>
+
+      <div class="sec-t">Narx</div>
+      <div class="grid3">
+        <label class="f"><span class="req">Narx, USD</span><input name="p" type="number" min="0" step="1" inputmode="decimal" value="${t.p || ""}" placeholder="45"></label>
+        <label class="f">Eski narx, USD <small>chegirma uchun</small><input name="old" type="number" min="0" step="1" inputmode="decimal" value="${t.old || ""}" placeholder="—"></label>
+        <label class="f">Davomiyligi<input name="dur" value="${esc(t.dur)}" placeholder="2 soat"></label>
+      </div>
+      <div class="hint" id="priceHint"></div>
+      <div class="checks">
+        <label class="check"><input type="checkbox" name="group" ${t.group ? "checked" : ""}><span>Narx butun guruh uchun<small>Masalan yaxta yoki transfer — kishi soni so‘ralmaydi</small></span></label>
+        <label class="check"><input type="checkbox" name="nokids" ${t.nokids ? "checked" : ""}><span>Bolalar narxi yo‘q<small>Belgilanmasa, bolalar uchun 25% chegirma beriladi</small></span></label>
+      </div>
+
+      <div class="sec-t">Tavsif</div>
+      <label class="f">Qisqacha tavsif<textarea name="d" rows="3" placeholder="Tur haqida 1–3 gap">${esc(t.d)}</textarea></label>
+      <label class="f">Narxga nimalar kiradi <small>har bir qatorga bittadan</small><textarea name="inc" rows="4" placeholder="Kirish chiptasi&#10;Transport&#10;Gid">${esc(t.inc.join("\n"))}</textarea></label>
+
+      <div class="sec-t">Ko‘rinish</div>
+      <div class="grid3">
+        <label class="f">Reyting <small>0–5</small><input name="r" type="number" min="0" max="5" step="0.1" value="${t.r}"></label>
+        <label class="f">Sharhlar soni<input name="n" type="number" min="0" step="1" value="${t.n}"></label>
+        <label class="f">Tartib <small>kattasi tepada</small><input name="pop" type="number" min="0" max="1000" step="1" value="${t.pop}"></label>
+      </div>
+      <label class="check"><input type="checkbox" name="active" ${t.active !== false ? "checked" : ""}><span>Saytda ko‘rinsin<small>Belgini olib tashlasangiz, tur o‘chirilmaydi, faqat yashiriladi</small></span></label>
+
+      <div class="err" id="formErr" role="alert"></div>
+      <div class="actions">
+        <button class="btn" type="submit" id="saveBtn">Saqlash</button>
+        ${t._new ? "" : `<button class="btn ghost" type="button" id="dupBtn">Nusxa olish</button>`}
+        <span class="sp"></span>
+        ${t._new ? `<button class="btn danger" type="button" id="cancelBtn">Bekor qilish</button>` : `<button class="btn danger" type="button" id="delBtn">O‘chirish</button>`}
+      </div>
+    </form>`;
+  priceHint();
+  const f = $("#tf");
+  f.addEventListener("input", () => { readForm(); markDirty(); priceHint(); });
+  f.addEventListener("submit", e => { e.preventDefault(); save(); });
+  $("#back").onclick = () => select(null);
+  const photo = $("#photo");
+  photo.onclick = () => $("#file").click();
+  photo.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); $("#file").click(); } };
+  photo.ondragover = e => { e.preventDefault(); photo.classList.add("drag"); };
+  photo.ondragleave = () => photo.classList.remove("drag");
+  photo.ondrop = e => { e.preventDefault(); photo.classList.remove("drag"); if (e.dataTransfer.files[0]) upload(e.dataTransfer.files[0]); };
+  if ($("#delBtn")) $("#delBtn").onclick = del;
+  if ($("#dupBtn")) $("#dupBtn").onclick = dup;
+  if ($("#cancelBtn")) $("#cancelBtn").onclick = () => { dirty = false; select(null); };
+}
+function readForm() {
+  const f = $("#tf");
+  Object.assign(draft, {
+    t: f.t.value, city: f.city.value, cat: f.cat.value, p: Number(f.p.value) || 0, old: Number(f.old.value) || 0, dur: f.dur.value,
+    group: f.group.checked, nokids: f.nokids.checked, d: f.d.value, inc: f.inc.value.split("\n").map(s => s.trim()).filter(Boolean),
+    r: Number(f.r.value) || 0, n: Number(f.n.value) || 0, pop: Number(f.pop.value) || 0, active: f.active.checked
+  });
+}
+function markDirty() { dirty = true; const m = $("#dirtyMark"); if (m) m.hidden = false; }
+function priceHint() {
+  const t = draft, h = $("#priceHint"); if (!h) return;
+  const aed = DATA.settings.aed || 3.6725;
+  let s = t.p ? `Saytda: $${t.p} · ${Math.round(t.p * aed)} AED` : "";
+  if (t.old && t.p && t.old > t.p) s += ` · chegirma −${Math.round((1 - t.p / t.old) * 100)}%`;
+  if (t.old && t.p && t.old <= t.p) s += " · eski narx yangisidan katta bo‘lishi kerak";
+  h.textContent = s;
+}
+
+async function upload(file) {
+  if (!/^image\//.test(file.type)) return toast("Faqat rasm fayli tanlang", true);
+  const photo = $("#photo");
+  photo.insertAdjacentHTML("beforeend", `<div class="busy">Yuklanmoqda…</div>`);
+  try {
+    const blob = await shrink(file);
+    const { url } = await api("/api/admin/upload", { method: "POST", body: blob, headers: { "content-type": blob.type } });
+    draft.img = url; markDirty(); renderEditor(); toast("Rasm yuklandi — endi Saqlash ni bosing");
+  } catch (x) { toast(x.message, true); photo.querySelector(".busy")?.remove(); }
+}
+// Katta rasmni 1600px gacha kichraytirib, JPEG ga o‘tkazamiz
+async function shrink(file) {
+  const bmp = await createImageBitmap(file);
+  const k = Math.min(1, 1600 / bmp.width);
+  const c = document.createElement("canvas");
+  c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+  c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+  return new Promise(r => c.toBlob(r, "image/jpeg", 0.82));
+}
+$("#file").onchange = e => { const f = e.target.files[0]; e.target.value = ""; if (f) upload(f); };
+
+async function persist(tours, okMsg) {
+  const btn = $("#saveBtn"); if (btn) { btn.disabled = true; btn.textContent = "Saqlanmoqda…"; }
+  try {
+    DATA = await api("/api/admin/data", { method: "PUT", body: JSON.stringify({ settings: DATA.settings, tours }) });
+    toast(okMsg); return true;
+  } catch (x) { toast(x.message, true); return false; }
+  finally { if (btn) { btn.disabled = false; btn.textContent = "Saqlash"; } }
+}
+async function save() {
+  readForm();
+  const err = $("#formErr");
+  if (!draft.t.trim()) { err.textContent = "Tur nomini kiriting."; $("#tf").t.focus(); return; }
+  if (!draft.p) { err.textContent = "Narxni kiriting."; $("#tf").p.focus(); return; }
+  err.textContent = "";
+  const { _new, ...t } = draft;
+  const tours = _new ? [...DATA.tours, t] : DATA.tours.map(x => x.id === t.id ? t : x);
+  if (await persist(tours, "Saqlandi — saytda 1 daqiqa ichida yangilanadi")) {
+    dirty = false; draft = JSON.parse(JSON.stringify(DATA.tours.find(x => x.id === t.id))); renderList(); renderEditor();
+  }
+}
+async function del() {
+  if (!confirm(`“${draft.t}” turini butunlay o‘chirasizmi? Buni qaytarib bo‘lmaydi.\n\nFaqat yashirmoqchi bo‘lsangiz, “Saytda ko‘rinsin” belgisini olib tashlang.`)) return;
+  if (await persist(DATA.tours.filter(x => x.id !== draft.id), "O‘chirildi")) { dirty = false; sel = null; draft = null; $("#v-tours").classList.remove("editing"); renderList(); renderEditor(); }
+}
+function dup() {
+  if (dirty && !confirm("Saqlanmagan o‘zgarishlar yo‘qoladi. Davom etasizmi?")) return;
+  const id = Math.max(0, ...DATA.tours.map(t => t.id)) + 1;
+  draft = { ...JSON.parse(JSON.stringify(draft)), id, t: draft.t + " (nusxa)", _new: true };
+  sel = id; dirty = true; renderList(); renderEditor(); toast("Nusxa tayyor — o‘zgartirib, Saqlash ni bosing");
+}
+addEventListener("beforeunload", e => { if (dirty) { e.preventDefault(); e.returnValue = ""; } });
+
+/* ===== Buyurtmalar ===== */
+async function loadOrders() {
+  try { ORDERS = await api("/api/admin/orders"); } catch (x) { return toast(x.message, true); }
+  renderOrders();
+}
+$("#reloadOrders").onclick = loadOrders;
+const fmtDate = iso => { try { return new Date(iso).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }); } catch (e) { return iso; } };
+function renderOrders() {
+  const n = ORDERS.filter(o => o.status === "new").length;
+  $("#newCnt").textContent = n; $("#newCnt").hidden = !n;
+  $("#ordChips").innerHTML = ["all", ...Object.keys(STATUSES)].map(s =>
+    `<button type="button" data-st="${s}" aria-pressed="${ordF === s}">${s === "all" ? "Hammasi" : STATUSES[s]} <span style="opacity:.6">${ORDERS.filter(o => s === "all" || o.status === s).length}</span></button>`).join("");
+  const list = ORDERS.filter(o => ordF === "all" || o.status === ordF);
+  $("#orders").innerHTML = list.length ? list.map(o => {
+    const tg = (o.tg || "").replace(/^@/, "");
+    return `<div class="panel order" data-key="${esc(o.key)}">
+      <div class="who">
+        <b>${esc(o.name)}</b> <span class="meta">· ${esc(o.no)} · ${fmtDate(o.at)}</span><br>
+        <a href="tel:${esc(o.phone.replace(/[^\d+]/g, ""))}">${esc(o.phone)}</a>${tg ? ` · <a href="https://t.me/${esc(tg)}" target="_blank" rel="noopener">@${esc(tg)}</a>` : ""}
+        <ul>${(o.items || []).map(i => `<li>${esc(i.title)} — ${esc(i.date)}${i.adults ? `, ${i.adults} katta` : ""}${i.kids ? `, ${i.kids} bola` : ""} · $${Math.round(i.sum)}</li>`).join("")}</ul>
+      </div>
+      <div class="side">
+        <span class="sum">$${Math.round(o.totalUsd || 0)}</span>
+        <span class="st ${o.status}">${STATUSES[o.status] || o.status}</span>
+        <select aria-label="Holatini o‘zgartirish">${Object.entries(STATUSES).map(([k, v]) => `<option value="${k}" ${k === o.status ? "selected" : ""}>${v}</option>`).join("")}</select>
+        <button class="btn danger sm" type="button" data-del>O‘chirish</button>
+      </div>
+    </div>`; }).join("") : `<div class="panel empty">${ORDERS.length ? "Bu holatda buyurtma yo‘q" : "Hozircha buyurtmalar yo‘q. Saytda kimdir band qilganda shu yerda paydo bo‘ladi."}</div>`;
+}
+$("#ordChips").addEventListener("click", e => { const b = e.target.closest("[data-st]"); if (b) { ordF = b.dataset.st; renderOrders(); } });
+$("#orders").addEventListener("change", async e => {
+  const card = e.target.closest("[data-key]"); if (!card || e.target.tagName !== "SELECT") return;
+  try {
+    const o = await api("/api/admin/orders/" + encodeURIComponent(card.dataset.key), { method: "PATCH", body: JSON.stringify({ status: e.target.value }) });
+    ORDERS = ORDERS.map(x => x.key === card.dataset.key ? { ...x, ...o } : x); renderOrders(); toast("Holat yangilandi");
+  } catch (x) { toast(x.message, true); }
+});
+$("#orders").addEventListener("click", async e => {
+  if (!e.target.closest("[data-del]")) return;
+  const card = e.target.closest("[data-key]");
+  if (!confirm("Buyurtmani o‘chirasizmi?")) return;
+  try {
+    await api("/api/admin/orders/" + encodeURIComponent(card.dataset.key), { method: "DELETE" });
+    ORDERS = ORDERS.filter(x => x.key !== card.dataset.key); renderOrders(); toast("O‘chirildi");
+  } catch (x) { toast(x.message, true); }
+});
+
+/* ===== Sozlamalar ===== */
+function fillSettings() {
+  const f = $("#setForm"), s = DATA.settings;
+  ["phone", "telegram", "instagram", "email", "aed"].forEach(k => f[k].value = s[k] ?? "");
+}
+$("#setForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const f = e.target;
+  const settings = { phone: f.phone.value, telegram: f.telegram.value, instagram: f.instagram.value, email: f.email.value, aed: Number(f.aed.value) };
+  try {
+    DATA = await api("/api/admin/data", { method: "PUT", body: JSON.stringify({ settings, tours: DATA.tours }) });
+    fillSettings(); toast("Sozlamalar saqlandi");
+  } catch (x) { toast(x.message, true); }
+});
+
+start();
+</script>
+</body>
+</html>
