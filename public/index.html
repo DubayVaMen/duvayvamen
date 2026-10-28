@@ -192,7 +192,10 @@ footer a{color:var(--ink)}
 @media (max-width:760px){
   .top-search,.cur-desktop,.orders-desktop,#cartBtn{display:none}
   .top .wrap{height:58px}
-  .hero .wrap{padding-top:36px;padding-bottom:120px}
+  /* telefonda: matn tepada, Burj Khalifa bilan panorama pastda to‘liq ko‘rinadi */
+  .hero{background:url("img/dubai-skyline.jpg") center bottom -80px/auto 400px no-repeat,#161D36}
+  .hero::before{background:linear-gradient(180deg,#161D36 0%,#161D36 calc(100% - 322px),rgba(22,29,54,.6) calc(100% - 270px),rgba(22,29,54,0) calc(100% - 200px),rgba(14,20,40,0) calc(100% - 70px),var(--bg) 100%)}
+  .hero .wrap{padding-top:32px;padding-bottom:250px}
   .hero p{font-size:16px}
   .perks{grid-template-columns:1fr 1fr;margin-top:-26px}
   .perk{padding:12px}
