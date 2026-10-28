@@ -502,7 +502,7 @@ function renderOrders() {
     return `<div class="panel order" data-key="${esc(o.key)}">
       <div class="who">
         <b>${esc(o.name)}</b> <span class="meta">· ${esc(o.no)} · ${fmtDate(o.at)}</span><br>
-        <a href="tel:${esc(o.phone.replace(/[^\d+]/g, ""))}">${esc(o.phone)}</a>
+        ${o.phone ? `<a href="tel:${esc(o.phone.replace(/[^\d+]/g, ""))}">${esc(o.phone)}</a>` : `<span class="meta">telefon yo‘q</span>`}
         ${tg ? ` · <a href="https://t.me/${esc(tg)}" target="_blank" rel="noopener">@${esc(tg)}</a>` : o.tgId ? ` · <a href="tg://user?id=${esc(o.tgId)}">Telegramda yozish</a>` : ""}
         ${o.tgId ? `<span class="meta" title="Telegram orqali tasdiqlangan">✓ Telegram</span>` : ""}
         <ul>${(o.items || []).map(i => `<li>${esc(i.title)} — ${esc(i.date)}${i.adults ? `, ${i.adults} katta` : ""}${i.kids ? `, ${i.kids} bola` : ""} · $${Math.round(i.sum)}</li>`).join("")}</ul>

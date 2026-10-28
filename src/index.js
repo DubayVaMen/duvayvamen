@@ -107,7 +107,7 @@ async function notifyOrder(env, o) {
   const admin = [
     `🆕 <b>Yangi buyurtma ${e(o.no)}</b>`,
     `👤 ${e(o.name)}`,
-    `📞 ${e(o.phone)}`,
+    `📞 ${o.phone ? e(o.phone) : "telefon ko‘rsatilmagan — Telegram orqali bog‘laning"}`,
     `✈️ ${o.tg ? e(o.tg) + "  ·  " : ""}<a href="tg://user?id=${e(o.tgId)}">Telegramda yozish</a>`,
     "", ...items, "",
     `💰 Jami: <b>$${Math.round(o.totalUsd)}</b>`,
@@ -199,7 +199,7 @@ async function handle(request, env, ctx) {
     if (used >= 5) return json({ error: "Juda ko‘p buyurtma. Birozdan keyin urinib ko‘ring yoki bizga Telegramda yozing." }, 429);
     let o;
     try { o = await request.json(); } catch { return json({ error: "Noto‘g‘ri so‘rov" }, 400); }
-    if (!str(o.name) || !str(o.phone)) return json({ error: "Ism va telefon kerak" }, 400);
+    if (!str(o.name)) return json({ error: "Ismingizni kiriting" }, 400);
     const at = new Date().toISOString();
     const order = {
       no: str(o.no, 20) || "DV-" + Date.now().toString().slice(-6), at, status: "new",

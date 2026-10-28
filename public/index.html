@@ -197,6 +197,7 @@ footer a{color:var(--ink)}
 .tg-box{min-height:44px;display:flex;justify-content:center;align-items:center}
 .tg-who{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:var(--sea-soft);font-size:14.5px}
 .tg-who .ok{color:var(--sea);font-weight:800}
+.form .opt{font-weight:500;color:var(--muted)}
 .tg-who button{border:0;background:none;color:var(--muted);font-weight:600;font-size:13px;text-decoration:underline;padding:0}
 .done{text-align:center;padding:24px 8px}
 .done .big{font-size:56px}
@@ -519,7 +520,7 @@ function openCart(focusForm) {
       <form class="form" id="orderForm" novalidate>
         <div class="tg-who"><span>✈️ Telegram: <b>${esc(u.username ? "@" + u.username : u.name)}</b> <span class="ok">✓</span></span><button type="button" id="tgOut">Boshqa akkaunt</button></div>
         <label>Ism va familiya<input name="name" required autocomplete="name" placeholder="Aziz Karimov" value="${esc(u.name || "")}"></label>
-        <label>Telefon raqam<input name="phone" required type="tel" inputmode="tel" autocomplete="tel" placeholder="+998 90 123 45 67" pattern="^\\+?998[\\s\\-]?\\d{2}[\\s\\-]?\\d{3}[\\s\\-]?\\d{2}[\\s\\-]?\\d{2}$"></label>
+        <label>Telefon raqam <span class="opt">(ixtiyoriy)</span><input name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+998 90 123 45 67 yoki +971 …" pattern="^\\+?[\\d\\s\\-\\(\\)]{7,20}$"></label>
         <div class="err" id="formErr" role="alert"></div>
       </form>` : `
       <div class="tg-login">
@@ -546,7 +547,7 @@ async function submitOrder(e) {
   e.preventDefault();
   const f = e.target, err = $("#formErr");
   if (!f.name.value.trim()) { err.textContent = "Ismingizni kiriting."; f.name.focus(); return; }
-  if (!f.phone.checkValidity()) { err.textContent = "Telefonni +998 90 123 45 67 ko‘rinishida kiriting."; f.phone.focus(); return; }
+  if (f.phone.value.trim() && !f.phone.checkValidity()) { err.textContent = "Telefon raqam noto‘g‘ri. Bo‘sh qoldirishingiz ham mumkin."; f.phone.focus(); return; }
   const u = S.user.user;
   const order = {
     no: "DV-" + Date.now().toString().slice(-6), at: new Date().toISOString(),
