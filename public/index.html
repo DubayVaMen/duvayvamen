@@ -66,6 +66,8 @@ header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;backgroun
 .hero .wrap{position:relative;z-index:2;padding-top:72px;padding-bottom:170px}
 .hero-kicker{display:inline-flex;align-items:center;gap:8px;margin-bottom:16px;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);font-size:13.5px;font-weight:700}
 .hero h1,.hero p{text-shadow:0 2px 18px rgba(10,12,30,.45)}
+.hero p.hero-lead{margin:0 0 10px;font-size:clamp(18px,2vw,22px);font-weight:700;color:#fff;max-width:34ch;line-height:1.35}
+.hero-lead b{color:#FFC75A}
 .hero h1{font-family:var(--display);font-weight:700;font-size:clamp(30px,5.4vw,58px);line-height:1.04;letter-spacing:-.03em;margin:0 0 14px;max-width:13ch}
 .hero p{margin:0 0 26px;font-size:18px;max-width:46ch;color:rgba(255,255,255,.88)}
 .hero-search{display:flex;gap:8px;max-width:560px;background:#fff;border-radius:16px;padding:6px;box-shadow:0 12px 40px rgba(0,0,0,.25)}
@@ -96,6 +98,13 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(22px,3vw,30px);let
 .tabs::-webkit-scrollbar{display:none}
 .tab{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:9px 15px;font-weight:600;font-size:14.5px;display:flex;gap:6px;align-items:center}
 .tab[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tab{padding:11px 20px;font-size:15.5px;font-weight:700}
+.tab small{font-weight:600;opacity:.6}
+.group{margin-top:22px}
+.group:first-child{margin-top:8px}
+.group-head{display:flex;align-items:baseline;gap:10px;margin:0 0 14px}
+.group-head h3{margin:0;font-family:var(--display);font-size:clamp(18px,2.2vw,22px);letter-spacing:-.01em}
+.group-head span{color:var(--muted);font-size:14px;font-weight:600}
 .sort{appearance:none;-webkit-appearance:none;height:42px;border-radius:21px;border:1px solid var(--line);background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%238A94A6' stroke-width='2'%3E%3Cpath d='M1 1l5 5 5-5'/%3E%3C/svg%3E") right 14px center no-repeat;padding:0 38px 0 16px;font-weight:600;cursor:pointer}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:20px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:20px;overflow:hidden;display:flex;flex-direction:column;text-align:left;padding:0;transition:transform .2s ease,box-shadow .2s ease}
@@ -257,6 +266,7 @@ footer a{color:var(--ink)}
     <div class="wrap">
       <span class="hero-kicker"><span aria-hidden="true">🌴</span> Dubay · Abu-Dabi · BAA</span>
       <h1 id="heroTitle">Dubayga xush kelibsiz!</h1>
+      <p class="hero-lead">Biz orqali <b>90%</b> joylarning biletlarini kassadan <b>arzon narxda</b> sotib olishingiz mumkin.</p>
       <p>Ekskursiyalar, attraksion chiptalari, safari va kruizlar. Tasdiq Telegramga keladi.</p>
       <form class="hero-search" id="heroForm" role="search">
         <label class="sr" for="q2">Tur yoki joy nomi</label>
@@ -277,7 +287,7 @@ footer a{color:var(--ink)}
 
     <section id="katalog" aria-labelledby="catTitle">
       <div class="sec-head">
-        <h2 id="catTitle">Turlar va chiptalar</h2>
+        <h2 id="catTitle">Katalog</h2>
         <div>
           <label class="sr" for="sort">Saralash</label>
           <select id="sort" class="sort">
@@ -288,8 +298,8 @@ footer a{color:var(--ink)}
           </select>
         </div>
       </div>
-      <div class="tabs" id="tabs" role="toolbar" aria-label="Turkumlar"></div>
-      <div class="grid" id="grid" aria-live="polite"></div>
+      <div class="tabs" id="tabs" role="toolbar" aria-label="Shahar"></div>
+      <div id="grid" aria-live="polite"></div>
     </section>
 
     <section class="tg-band" aria-labelledby="tgTitle">
@@ -359,14 +369,20 @@ footer a{color:var(--ink)}
 /* ===== Sozlamalar (admin paneldan keladi) ===== */
 const RATES = { USD: 1, AED: 3.6725 }; // namuna kurs, backenddan yangilanadi
 const CATS = [
-  { id: "all", name: "Hammasi", ico: "✨" },
-  { id: "attr", name: "Diqqatga sazovor joylar", ico: "🏙️" },
-  { id: "safari", name: "Cho‘l safari", ico: "🐪" },
-  { id: "cruise", name: "Kruiz va yaxta", ico: "🛥️" },
-  { id: "park", name: "Parklar", ico: "🎢" },
-  { id: "event", name: "Shou va tadbirlar", ico: "🎭" },
-  { id: "city", name: "Shahar turlari", ico: "🚌" },
-  { id: "visa", name: "Viza va transfer", ico: "🛂" }
+  { id: "attr", name: "Diqqatga sazovor joylar" },
+  { id: "safari", name: "Cho‘l safari" },
+  { id: "cruise", name: "Kruiz va yaxta" },
+  { id: "park", name: "Parklar" },
+  { id: "event", name: "Shou va tadbirlar" },
+  { id: "city", name: "Shahar turlari" },
+  { id: "visa", name: "Viza va transfer" }
+];
+const CITIES = [{ id: "Dubay", ico: "🏙️" }, { id: "Abu-Dabi", ico: "🕌" }];
+/* Har bir shahar sahifasida tartib: avval ekskursiyalar, keyin turlar va biletlar */
+const GROUPS = [
+  { name: "Ekskursiyalar", cats: ["city", "safari", "cruise"] },
+  { name: "Turlar va biletlar", cats: ["attr", "park", "event"] },
+  { name: "Viza va transfer", cats: ["visa"] }
 ];
 const GRAD = {
   attr: "linear-gradient(160deg,#2F5FC9,#8EC5F2)", safari: "linear-gradient(160deg,#D9692C,#F6C46B)",
@@ -429,7 +445,7 @@ const ITEMS = [
 ];
 
 /* ===== Holat ===== */
-const S = { cur: "USD", cat: "all", q: "", sort: "pop", cart: [], orders: [], sel: null };
+const S = { cur: "USD", city: "Dubay", q: "", sort: "pop", cart: [], orders: [], sel: null };
 const store = {
   get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
@@ -456,26 +472,32 @@ function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<":
 
 /* ===== Katalog ===== */
 function renderTabs() {
-  $("#tabs").innerHTML = CATS.map(c =>
-    `<button class="tab" type="button" data-cat="${c.id}" aria-pressed="${S.cat === c.id}"><span aria-hidden="true">${c.ico}</span>${c.name}</button>`).join("");
+  $("#tabs").innerHTML = CITIES.map(c =>
+    `<button class="tab" type="button" data-city="${c.id}" aria-pressed="${!S.q && S.city === c.id}"><span aria-hidden="true">${c.ico}</span>${c.id}<small>${ITEMS.filter(it => it.city === c.id).length}</small></button>`).join("");
   $("#quick").innerHTML = ["Cho‘l safari", "Burj Khalifa", "Aquapark", "Viza"].map(q =>
     `<button type="button" data-q="${q}">${q}</button>`).join("");
 }
-function filtered() {
+const SORTS = { pop: (a, b) => b.pop - a.pop, low: (a, b) => a.p - b.p, high: (a, b) => b.p - a.p, rate: (a, b) => b.r - a.r };
+function searched() {
   const q = S.q.trim().toLowerCase();
-  let list = ITEMS.filter(it => (S.cat === "all" || it.cat === S.cat) &&
-    (!q || (it.t + " " + it.d + " " + it.city + " " + CATS.find(c => c.id === it.cat).name).toLowerCase().includes(q)));
-  const f = { pop: (a, b) => b.pop - a.pop, low: (a, b) => a.p - b.p, high: (a, b) => b.p - a.p, rate: (a, b) => b.r - a.r }[S.sort];
-  return list.sort(f);
+  return ITEMS.filter(it => (it.t + " " + it.d + " " + it.city + " " + CATS.find(c => c.id === it.cat).name).toLowerCase().includes(q)).sort(SORTS[S.sort]);
 }
+const groupHtml = (title, list) => `<div class="group"><div class="group-head"><h3>${title}</h3><span>${list.length}</span></div><div class="grid">${cardsHtml(list)}</div></div>`;
 function renderGrid() {
-  const list = filtered();
-  if (!list.length) {
-    $("#grid").innerHTML = `<div class="empty" style="grid-column:1/-1">“${esc(S.q)}” bo‘yicha hech narsa topilmadi. Boshqa so‘z bilan qidiring yoki <button class="btn ghost" type="button" id="reset" style="height:36px;margin-left:6px">barcha turlarni ko‘rsating</button></div>`;
-    $("#reset").onclick = () => { S.q = ""; S.cat = "all"; $("#q1").value = $("#q2").value = ""; renderTabs(); renderGrid(); };
+  if (S.q.trim()) {
+    const list = searched();
+    $("#grid").innerHTML = list.length ? groupHtml(`“${esc(S.q)}” bo‘yicha`, list)
+      : `<div class="empty">“${esc(S.q)}” bo‘yicha hech narsa topilmadi. Boshqa so‘z bilan qidiring yoki <button class="btn ghost" type="button" id="reset" style="height:36px;margin-left:6px">barcha turlarni ko‘rsating</button></div>`;
+    if (!list.length) $("#reset").onclick = () => { S.q = ""; $("#q1").value = $("#q2").value = ""; renderTabs(); renderGrid(); };
     return;
   }
-  $("#grid").innerHTML = list.map(it => {
+  $("#grid").innerHTML = GROUPS.map(g => {
+    const list = ITEMS.filter(it => g.cats.includes(it.cat) && (it.city === S.city || it.city === "Onlayn")).sort(SORTS[S.sort]);
+    return list.length ? groupHtml(g.name, list) : "";
+  }).join("");
+}
+function cardsHtml(list) {
+  return list.map(it => {
     const off = it.old ? Math.round((1 - it.p / it.old) * 100) : 0;
     return `<button class="card" type="button" data-id="${it.id}">
       <div class="thumb">${photo(it)}
@@ -619,13 +641,16 @@ function toast(msg) {
 }
 
 /* ===== Hodisalar ===== */
-$("#tabs").addEventListener("click", e => { const b = e.target.closest("[data-cat]"); if (!b) return; S.cat = b.dataset.cat; renderTabs(); renderGrid(); });
+$("#tabs").addEventListener("click", e => {
+  const b = e.target.closest("[data-city]"); if (!b) return;
+  S.city = b.dataset.city; S.q = ""; $("#q1").value = $("#q2").value = ""; renderTabs(); renderGrid();
+});
 $("#quick").addEventListener("click", e => { const b = e.target.closest("[data-q]"); if (!b) return; setQuery(b.dataset.q); });
 $("#grid").addEventListener("click", e => { const c = e.target.closest(".card"); if (c) openDetail(Number(c.dataset.id)); });
 $("#sort").onchange = e => { S.sort = e.target.value; renderGrid(); };
-$("#q1").addEventListener("input", e => { S.q = e.target.value; $("#q2").value = S.q; renderGrid(); });
+$("#q1").addEventListener("input", e => { S.q = e.target.value; $("#q2").value = S.q; renderTabs(); renderGrid(); });
 $("#heroForm").addEventListener("submit", e => { e.preventDefault(); setQuery($("#q2").value); });
-function setQuery(q) { S.q = q; $("#q1").value = $("#q2").value = q; S.cat = "all"; renderTabs(); renderGrid(); $("#katalog").scrollIntoView({ behavior: "smooth" }); }
+function setQuery(q) { S.q = q; $("#q1").value = $("#q2").value = q; renderTabs(); renderGrid(); $("#katalog").scrollIntoView({ behavior: "smooth" }); }
 function renderCur() { document.querySelectorAll("#cur [data-cur]").forEach(b => b.setAttribute("aria-pressed", b.dataset.cur === S.cur)); }
 renderCur();
 $("#cur").addEventListener("click", e => {
