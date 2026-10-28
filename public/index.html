@@ -517,7 +517,7 @@ function openCart(focusForm) {
         <div class="c-right"><strong>${money(lineTotal(l))}</strong><button type="button" data-rm="${i}">O‘chirish</button></div></div>`; }).join("") + `
       <form class="form" id="orderForm" novalidate>
         <label>Ism va familiya<input name="name" required autocomplete="name" placeholder="Aziz Karimov" value="${tgUser ? esc((tgUser.first_name || "") + " " + (tgUser.last_name || "")).trim() : ""}"></label>
-        <label>Telefon raqam<input name="phone" required type="tel" inputmode="tel" autocomplete="tel" placeholder="+998 90 123 45 67" pattern="^\\+?998[\\s-]?\\d{2}[\\s-]?\\d{3}[\\s-]?\\d{2}[\\s-]?\\d{2}$"></label>
+        <label>Telefon raqam<input name="phone" required type="tel" inputmode="tel" autocomplete="tel" placeholder="+998 90 123 45 67" pattern="^\\+?998[\\s\\-]?\\d{2}[\\s\\-]?\\d{3}[\\s\\-]?\\d{2}[\\s\\-]?\\d{2}$"></label>
         <label>Telegram (ixtiyoriy)<input name="tg" placeholder="@username" value="${tgUser && tgUser.username ? "@" + esc(tgUser.username) : ""}"></label>
         <div class="err" id="formErr" role="alert"></div>
       </form>`;
