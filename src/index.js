@@ -404,7 +404,7 @@ async function handle(request, env, ctx) {
     }
 
     if (path === "/api/admin/orders" && method === "GET") {
-      return json(await orders(env).list(200), 200, { "cache-control": "no-store" });
+      return json(await orders(env).list(1000), 200, { "cache-control": "no-store" });
     }
     const om = decodeURIComponent(path).match(/^\/api\/admin\/orders\/(order:[^/]+)$/);
     if (om) {

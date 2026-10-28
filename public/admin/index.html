@@ -120,6 +120,39 @@ main{max-width:1280px;margin:0 auto;padding:20px}
 /* settings */
 .set{max-width:640px;padding:22px;display:grid;gap:16px}
 
+/* analitika — ranglar tekshirilgan: rang ko‘rlikda ham ajraladi, yorug‘/qorong‘i uchun alohida */
+.stats{display:grid;gap:16px;
+  --c-ok:#2a78d6;--c-wait:#eda100;--c-cancel:#e87ba4;--grid:#E6E9EF}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .stats{--c-ok:#3987e5;--c-wait:#c98500;--c-cancel:#d55181;--grid:#253047}}
+:root[data-theme="dark"] .stats{--c-ok:#3987e5;--c-wait:#c98500;--c-cancel:#d55181;--grid:#253047}
+.st-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.st-head h2{margin:0;font-family:var(--display);font-size:20px}
+.seg{display:inline-flex;padding:3px;border-radius:12px;background:var(--chip);gap:2px}
+.seg button{border:0;background:none;border-radius:9px;padding:7px 14px;font-weight:700;font-size:13.5px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.kpi{padding:16px}
+.kpi span{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:13px;font-weight:700}
+.kpi b{display:block;font-size:28px;font-weight:800;letter-spacing:-.02em;margin-top:6px;font-variant-numeric:tabular-nums}
+.kpi small{color:var(--muted);font-weight:600;font-size:12.5px}
+.dot{width:10px;height:10px;border-radius:3px;flex:none}
+.chart-box{padding:18px}
+.chart-box h3,.top h3{margin:0 0 4px;font-size:15px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin:6px 0 10px;font-size:13px;font-weight:600;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.chart{position:relative}
+.chart svg{display:block;width:100%;height:260px;overflow:visible}
+.chart text{fill:var(--muted);font-size:11px;font-family:var(--body)}
+.chart .col:hover .hit{fill:var(--chip)}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);border-radius:10px;padding:8px 10px;font-size:12.5px;line-height:1.5;white-space:nowrap;transform:translate(-50%,-100%);margin-top:-8px;z-index:5}
+.tip i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px}
+.top{padding:18px;overflow-x:auto}
+.top table{width:100%;border-collapse:collapse;font-size:14px}
+.top th{text-align:left;color:var(--muted);font-size:12.5px;font-weight:700;padding:8px 10px;border-bottom:1px solid var(--line)}
+.top td{padding:9px 10px;border-bottom:1px solid var(--line)}
+.top td.n,.top th.n{text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:860px){.kpis{grid-template-columns:1fr 1fr}.kpi b{font-size:24px}.chart svg{height:220px}}
+
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:12px;font-weight:700;opacity:0;transition:.2s;z-index:50;pointer-events:none}
 .toast.on{opacity:1;transform:translateX(-50%)}
 .toast.bad{background:var(--sale);color:#fff}
@@ -168,6 +201,7 @@ main{max-width:1280px;margin:0 auto;padding:20px}
     <nav class="nav" aria-label="Bo‘limlar">
       <button type="button" data-view="tours" aria-current="page">Turlar</button>
       <button type="button" data-view="orders">Buyurtmalar<span class="cnt" id="newCnt" hidden></span></button>
+      <button type="button" data-view="stats">Analitika</button>
       <button type="button" data-view="settings">Sozlamalar</button>
     </nav>
     <div class="right">
@@ -198,6 +232,30 @@ main{max-width:1280px;margin:0 auto;padding:20px}
         <button class="btn ghost sm" type="button" id="reloadOrders">Yangilash</button>
       </div>
       <div class="orders" id="orders"></div>
+    </section>
+
+    <!-- Analitika -->
+    <section id="v-stats" class="stats" hidden>
+      <div class="st-head">
+        <h2>Analitika</h2>
+        <div class="seg" id="period" role="group" aria-label="Davr">
+          <button type="button" data-p="day">Bugun</button><button type="button" data-p="week" aria-pressed="true">Hafta</button><button type="button" data-p="month">Oy</button><button type="button" data-p="year">Yil</button>
+        </div>
+      </div>
+      <div class="kpis" id="kpis"></div>
+      <div class="panel chart-box">
+        <h3 id="chartTitle">Buyurtmalar</h3>
+        <div class="legend">
+          <span><i class="dot" style="background:var(--c-ok)"></i>Tasdiqlangan</span>
+          <span><i class="dot" style="background:var(--c-wait)"></i>Kutilmoqda</span>
+          <span><i class="dot" style="background:var(--c-cancel)"></i>Bekor qilingan</span>
+        </div>
+        <div class="chart" id="chart"></div>
+      </div>
+      <div class="panel top">
+        <h3>Eng ko‘p buyurtma qilingan turlar</h3>
+        <div id="topTours"></div>
+      </div>
     </section>
 
     <!-- Sozlamalar -->
@@ -308,8 +366,8 @@ document.querySelector(".nav").addEventListener("click", e => {
   const b = e.target.closest("[data-view]"); if (!b) return;
   document.querySelectorAll(".nav button").forEach(x => x.removeAttribute("aria-current"));
   b.setAttribute("aria-current", "page");
-  ["tours", "orders", "settings"].forEach(v => $("#v-" + v).hidden = v !== b.dataset.view);
-  if (b.dataset.view === "orders") loadOrders();
+  ["tours", "orders", "stats", "settings"].forEach(v => $("#v-" + v).hidden = v !== b.dataset.view);
+  if (b.dataset.view === "orders" || b.dataset.view === "stats") loadOrders();
 });
 
 /* ===== Turlar ro‘yxati ===== */
@@ -496,7 +554,7 @@ async function loadOrders(silent) {
   try { fresh = await api("/api/admin/orders"); } catch (x) { return silent ? null : toast(x.message, true); }
   // fonda yangilanganda, o‘zgarish bo‘lmasa qayta chizmaymiz (ochiq ro‘yxat yopilib qolmasin)
   if (silent && JSON.stringify(fresh) === JSON.stringify(ORDERS)) return;
-  ORDERS = fresh; renderOrders();
+  ORDERS = fresh; renderOrders(); renderStats();
 }
 $("#reloadOrders").onclick = () => loadOrders();
 // Bot orqali tasdiqlangan yoki yangi kelgan buyurtmalar o‘zi ko‘rinib tursin
@@ -545,6 +603,92 @@ $("#orders").addEventListener("click", async e => {
     ORDERS = ORDERS.filter(x => x.key !== card.dataset.key); renderOrders(); toast("O‘chirildi");
   } catch (x) { toast(x.message, true); }
 });
+
+/* ===== Analitika ===== */
+let PERIOD = "week";
+const MON = ["yan", "fev", "mar", "apr", "may", "iyn", "iyl", "avg", "sen", "okt", "noy", "dek"];
+const isOk = o => o.status === "confirmed" || o.status === "done";
+const fmt$ = n => "$" + Math.round(n).toLocaleString("ru-RU").replace(/,/g, " ");
+// Davr bo‘yicha ustunlar: Bugun — soatlar, Hafta/Oy — kunlar, Yil — oylar (mahalliy vaqt)
+function buckets(period) {
+  const now = new Date(), out = [];
+  if (period === "day") {
+    const d0 = new Date(now); d0.setHours(0, 0, 0, 0);
+    for (let h = 0; h < 24; h++) { const a = new Date(d0); a.setHours(h); const b = new Date(a); b.setHours(h + 1); out.push({ a, b, label: String(h).padStart(2, "0"), full: `${String(h).padStart(2, "0")}:00–${String(h + 1).padStart(2, "0")}:00` }); }
+  } else if (period === "year") {
+    for (let i = 11; i >= 0; i--) { const a = new Date(now.getFullYear(), now.getMonth() - i, 1), b = new Date(a.getFullYear(), a.getMonth() + 1, 1); out.push({ a, b, label: MON[a.getMonth()], full: MON[a.getMonth()] + " " + a.getFullYear() }); }
+  } else {
+    const n = period === "week" ? 7 : 30;
+    for (let i = n - 1; i >= 0; i--) { const a = new Date(now); a.setHours(0, 0, 0, 0); a.setDate(a.getDate() - i); const b = new Date(a); b.setDate(b.getDate() + 1); out.push({ a, b, label: n === 7 ? ["Ya", "Du", "Se", "Ch", "Pa", "Ju", "Sh"][a.getDay()] + " " + a.getDate() : String(a.getDate()), full: a.getDate() + " " + MON[a.getMonth()] }); }
+  }
+  return out;
+}
+function renderStats() {
+  if (!$("#kpis")) return;
+  document.querySelectorAll("#period [data-p]").forEach(b => b.setAttribute("aria-pressed", b.dataset.p === PERIOD));
+  const bs = buckets(PERIOD), from = bs[0].a, to = bs[bs.length - 1].b;
+  const list = ORDERS.filter(o => { const t = new Date(o.at); return t >= from && t < to; });
+  const ok = list.filter(isOk), wait = list.filter(o => o.status === "new"), cancel = list.filter(o => o.status === "cancelled");
+  const pct = n => list.length ? Math.round(n / list.length * 100) + "%" : "—";
+  const tile = (label, value, sub, color) => `<div class="panel kpi"><span>${color ? `<i class="dot" style="background:${color}"></i>` : ""}${label}</span><b>${value}</b><small>${sub}</small></div>`;
+  $("#kpis").innerHTML =
+    tile("Jami buyurtmalar", list.length, { day: "bugun", week: "so‘nggi 7 kun", month: "so‘nggi 30 kun", year: "so‘nggi 12 oy" }[PERIOD]) +
+    tile("Tasdiqlangan", ok.length, pct(ok.length) + " buyurtmadan", "var(--c-ok)") +
+    tile("Kutilmoqda", wait.length, pct(wait.length), "var(--c-wait)") +
+    tile("Bekor qilingan", cancel.length, pct(cancel.length), "var(--c-cancel)") +
+    tile("Tushum", fmt$(ok.reduce((s, o) => s + (o.totalUsd || 0), 0)), "tasdiqlanganlardan");
+  $("#chartTitle").textContent = { day: "Bugun soatlar bo‘yicha", week: "So‘nggi 7 kun", month: "So‘nggi 30 kun", year: "So‘nggi 12 oy" }[PERIOD];
+
+  // Ustunlar: pastda tasdiqlangan, o‘rtada kutilmoqda, tepada bekor qilingan
+  const rows = bs.map(b => {
+    const inB = list.filter(o => { const t = new Date(o.at); return t >= b.a && t < b.b; });
+    return { ...b, ok: inB.filter(isOk).length, wait: inB.filter(o => o.status === "new").length, cancel: inB.filter(o => o.status === "cancelled").length, total: inB.length };
+  });
+  const W = 720, H = 260, L = 32, R = 8, T = 10, B = 26, ih = H - T - B, iw = W - L - R;
+  const max = Math.max(1, ...rows.map(r => r.total));
+  const step = Math.max(1, Math.ceil(max / 4)), top = step * Math.ceil(max / step);
+  const y = v => T + ih - v / top * ih, slot = iw / rows.length, bw = Math.max(4, Math.min(36, slot * 0.62));
+  const labelEvery = rows.length > 12 ? Math.ceil(rows.length / 10) : 1;
+  let g = "";
+  for (let v = 0; v <= top; v += step) g += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)" stroke-width="1"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${v}</text>`;
+  rows.forEach((r, i) => {
+    const cx = L + slot * i + slot / 2, x = cx - bw / 2;
+    let acc = 0, segs = "";
+    const parts = [["ok", "var(--c-ok)"], ["wait", "var(--c-wait)"], ["cancel", "var(--c-cancel)"]].filter(([k]) => r[k]);
+    parts.forEach(([k, c], j) => {
+      const h = r[k] / top * ih, yy = y(acc + r[k]);
+      const last = j === parts.length - 1, gap = j > 0 ? 2 : 0; // segmentlar orasida 2px oraliq
+      segs += last
+        ? `<path d="M${x},${yy + h - gap} V${yy + 4} Q${x},${yy} ${x + 4},${yy} H${x + bw - 4} Q${x + bw},${yy} ${x + bw},${yy + 4} V${yy + h - gap} Z" fill="${c}"/>`
+        : `<rect x="${x}" y="${yy}" width="${bw}" height="${Math.max(0, h - gap)}" fill="${c}"/>`;
+      acc += r[k];
+    });
+    g += `<g class="col" data-i="${i}"><rect class="hit" x="${L + slot * i}" y="${T}" width="${slot}" height="${ih}" fill="transparent" rx="6"/>${segs}</g>`;
+    if (i % labelEvery === 0) g += `<text x="${cx}" y="${H - 8}" text-anchor="middle">${r.label}</text>`;
+  });
+  $("#chart").innerHTML = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="${list.length} ta buyurtma, ${ok.length} tasi tasdiqlangan">${g}</svg><div class="tip" hidden></div>`;
+  const tip = $("#chart .tip"), svg = $("#chart svg");
+  svg.querySelectorAll(".col").forEach(c => {
+    c.addEventListener("mousemove", e => {
+      const r = rows[c.dataset.i], box = $("#chart").getBoundingClientRect();
+      tip.innerHTML = `<b>${r.full}</b><br>Jami: ${r.total}<br><i style="background:var(--c-ok)"></i>Tasdiqlangan: ${r.ok}<br><i style="background:var(--c-wait)"></i>Kutilmoqda: ${r.wait}<br><i style="background:var(--c-cancel)"></i>Bekor: ${r.cancel}`;
+      tip.style.left = Math.min(box.width - 80, Math.max(80, e.clientX - box.left)) + "px"; tip.style.top = (e.clientY - box.top) + "px"; tip.hidden = false;
+    });
+    c.addEventListener("mouseleave", () => tip.hidden = true);
+  });
+
+  // Eng ko‘p buyurtma qilingan turlar
+  const by = {};
+  list.forEach(o => (o.items || []).forEach(i => {
+    const k = i.title || "—", r = by[k] || (by[k] = { t: k, n: 0, ok: 0, sum: 0 });
+    r.n++; if (isOk(o)) { r.ok++; r.sum += i.sum || 0; }
+  }));
+  const topList = Object.values(by).sort((a, b) => b.n - a.n || b.sum - a.sum).slice(0, 10);
+  $("#topTours").innerHTML = topList.length ? `<table><thead><tr><th>Tur</th><th class="n">Buyurtmalar</th><th class="n">Tasdiqlangan</th><th class="n">Tushum</th></tr></thead><tbody>${
+    topList.map(r => `<tr><td>${esc(r.t)}</td><td class="n">${r.n}</td><td class="n">${r.ok}</td><td class="n">${fmt$(r.sum)}</td></tr>`).join("")}</tbody></table>`
+    : `<div class="empty">Bu davrda buyurtma yo‘q</div>`;
+}
+$("#period").addEventListener("click", e => { const b = e.target.closest("[data-p]"); if (b) { PERIOD = b.dataset.p; renderStats(); } });
 
 /* ===== Sozlamalar ===== */
 function fillSettings() {
