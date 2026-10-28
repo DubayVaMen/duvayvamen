@@ -214,6 +214,12 @@ main{max-width:1280px;margin:0 auto;padding:20px}
         <label class="f">1 USD necha AED <small>AED narxlarni hisoblash uchun</small><input name="aed" type="number" step="0.0001" min="0.1"></label>
         <div><button class="btn" type="submit">Saqlash</button></div>
       </form>
+      <div class="panel set" style="margin-top:16px">
+        <h2>Telegram bot</h2>
+        <p class="hint" style="margin:0">Botni sayt bilan bog‘laydi: botda “Ochish” menyu tugmasi paydo bo‘ladi, /start bosganlarga “Turlarni ko‘rish” tugmasi yuboriladi, sizga esa “Admin panel” tugmasi ham chiqadi. Bir marta bosish kifoya; sayt manzili o‘zgarsa, qayta bosing.</p>
+        <div><button class="btn" type="button" id="botSetup">Botni sozlash</button></div>
+        <div class="hint" id="botResult" role="status"></div>
+      </div>
     </section>
   </main>
 </div>
@@ -538,6 +544,16 @@ function fillSettings() {
   const f = $("#setForm"), s = DATA.settings;
   ["phone", "telegram", "channel", "instagram", "aed"].forEach(k => f[k].value = s[k] ?? "");
 }
+$("#botSetup").onclick = async () => {
+  const b = $("#botSetup"), out = $("#botResult");
+  b.disabled = true; b.textContent = "Sozlanmoqda…"; out.textContent = "";
+  try {
+    await api("/api/admin/bot-setup", { method: "POST" });
+    out.innerHTML = "✅ Tayyor. Botga <b>/start</b> yozib tekshiring.";
+    toast("Bot sozlandi");
+  } catch (x) { out.textContent = "❌ " + x.message; toast("Bot sozlanmadi", true); }
+  finally { b.disabled = false; b.textContent = "Botni sozlash"; }
+};
 $("#setForm").addEventListener("submit", async e => {
   e.preventDefault();
   const f = e.target;

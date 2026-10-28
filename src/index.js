@@ -92,12 +92,56 @@ async function customerOf(request, env) {
   return { id: uid, username: d64(un) };
 }
 
-const tgSend = (env, chat_id, text) =>
-  fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+const tgApi = (env, method, body) =>
+  fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/${method}`, {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ chat_id, text, parse_mode: "HTML", disable_web_page_preview: true }),
-  }).catch(() => {});
+    body: JSON.stringify(body),
+  }).then((r) => r.json()).catch((e) => ({ ok: false, description: String(e) }));
+const tgSend = (env, chat_id, text, extra = {}) =>
+  tgApi(env, "sendMessage", { chat_id, text, parse_mode: "HTML", disable_web_page_preview: true, ...extra });
+
+// ===== Bot: mini ilova =====
+// Telegram webhook so‘rovlari shu maxfiy kalit bilan keladi (setWebhook da beriladi)
+const webhookSecret = (env) => hmac("webhook:" + env.TELEGRAM_BOT_TOKEN, "dubayvamen");
+
+function appButtons(origin, isAdminUser) {
+  const rows = [[{ text: "🌴 Turlarni ko‘rish", web_app: { url: origin + "/" } }]];
+  if (isAdminUser) rows.push([{ text: "⚙️ Admin panel", web_app: { url: origin + "/admin/" } }]);
+  return { reply_markup: { inline_keyboard: rows } };
+}
+
+async function handleBotUpdate(env, origin, update) {
+  const msg = update.message;
+  if (!msg || !msg.chat || msg.chat.type !== "private") return;
+  const isAdminUser = adminIds(env).includes(String(msg.from && msg.from.id));
+  const name = (msg.from && msg.from.first_name) || "";
+  const text = String(msg.text || "");
+  if (text.startsWith("/start")) {
+    await tgSend(env, msg.chat.id, [
+      `Assalomu alaykum${name ? ", " + name.replace(/[<>&]/g, "") : ""}! 👋`,
+      "",
+      "<b>Dubayga xush kelibsiz!</b>",
+      "Biz orqali 90% joylarning biletlarini kassadan arzon narxda sotib olishingiz mumkin.",
+      "",
+      "Ekskursiyalar, attraksion biletlari, safari va kruizlarni ko‘rish uchun quyidagi tugmani bosing 👇",
+    ].join("\n"), appButtons(origin, isAdminUser));
+  } else {
+    await tgSend(env, msg.chat.id, "Turlarni ko‘rish va band qilish uchun tugmani bosing 👇", appButtons(origin, isAdminUser));
+  }
+}
+
+// Admin paneldagi “Botni sozlash” tugmasi: webhook, menyu tugmasi va buyruqlar
+async function setupBot(env, origin) {
+  const steps = {};
+  steps.webhook = await tgApi(env, "setWebhook", {
+    url: origin + "/api/tg/webhook", secret_token: await webhookSecret(env), allowed_updates: ["message"], drop_pending_updates: true,
+  });
+  steps.menu = await tgApi(env, "setChatMenuButton", { menu_button: { type: "web_app", text: "Ochish", web_app: { url: origin + "/" } } });
+  steps.commands = await tgApi(env, "setMyCommands", { commands: [{ command: "start", description: "Turlar va biletlarni ochish" }] });
+  steps.description = await tgApi(env, "setMyShortDescription", { short_description: "Dubay turlari, ekskursiyalar va biletlar — kassadan arzon." });
+  return steps;
+}
 
 // Yangi buyurtma haqida adminlarga, mijozga esa tasdiq xabari
 async function notifyOrder(env, o) {
@@ -233,8 +277,23 @@ async function handle(request, env, ctx) {
     return json({ token: await makeToken(env, who.id), name: who.name });
   }
 
+  // Telegram bot webhook
+  if (path === "/api/tg/webhook" && method === "POST") {
+    if (!env.TELEGRAM_BOT_TOKEN) return json({ ok: false }, 500);
+    if (!safeEqual(request.headers.get("x-telegram-bot-api-secret-token") || "", await webhookSecret(env))) return json({ ok: false }, 401);
+    const update = await request.json().catch(() => ({}));
+    ctx.waitUntil(handleBotUpdate(env, url.origin, update));
+    return json({ ok: true });
+  }
+
   if (path.startsWith("/api/admin/")) {
     if (!(await isAdmin(request, env))) return json({ error: "Qayta kiring" }, 401);
+
+    if (path === "/api/admin/bot-setup" && method === "POST") {
+      const steps = await setupBot(env, url.origin);
+      const failed = Object.entries(steps).filter(([, r]) => !r.ok).map(([k, r]) => `${k}: ${r.description || "xato"}`);
+      return json({ ok: !failed.length, error: failed.join("; ") || undefined, steps }, failed.length ? 502 : 200);
+    }
 
     if (path === "/api/admin/data" && method === "GET") return json(await getData(env));
     if (path === "/api/admin/data" && method === "PUT") {
