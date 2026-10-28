@@ -131,8 +131,6 @@ footer{border-top:1px solid var(--line);background:var(--surface);padding:32px 0
 footer .cols{display:grid;grid-template-columns:2fr 1fr 1fr;gap:24px}
 footer b{color:var(--ink)}
 footer a{color:var(--ink)}
-.pay-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-.pay-row span{border:1px solid var(--line);border-radius:8px;padding:3px 10px;font-weight:700;color:var(--ink);font-size:13px}
 
 /* sheets */
 .overlay{position:fixed;inset:0;background:rgba(8,12,22,.5);z-index:50;opacity:0;pointer-events:none;transition:opacity .2s}
@@ -186,9 +184,6 @@ footer a{color:var(--ink)}
 .form label{display:grid;gap:6px;font-weight:600;font-size:14.5px}
 .form input{height:46px;border-radius:12px;border:1px solid var(--line);background:var(--bg);padding:0 14px;font-size:16px}
 .form input:invalid:not(:placeholder-shown){border-color:var(--sale)}
-.pays{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-.pays label{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-weight:700;cursor:pointer}
-.pays label:has(input:checked){border-color:var(--sea);background:var(--sea-soft)}
 .err{color:var(--sale);font-size:14px;min-height:1em}
 .done{text-align:center;padding:24px 8px}
 .done .big{font-size:56px}
@@ -247,7 +242,7 @@ footer a{color:var(--ink)}
       <input id="q1" type="search" placeholder="Safari, Burj Khalifa, kruiz…" autocomplete="off">
     </div>
     <div class="cur" id="cur" role="group" aria-label="Valyuta">
-      <button type="button" data-cur="UZS">so‘m</button><button type="button" data-cur="USD">USD</button><button type="button" data-cur="AED">AED</button>
+      <button type="button" data-cur="USD">USD</button><button type="button" data-cur="AED">AED</button>
     </div>
     <button class="icon-btn orders-desktop" id="ordersBtn" type="button">Buyurtmalarim</button>
     <button class="icon-btn" id="cartBtn" type="button" aria-label="Savat">
@@ -262,7 +257,7 @@ footer a{color:var(--ink)}
     <div class="wrap">
       <span class="hero-kicker"><span aria-hidden="true">🌴</span> Dubay · Abu-Dabi · BAA</span>
       <h1 id="heroTitle">Dubayda nima qilamiz?</h1>
-      <p>Ekskursiyalar, attraksion chiptalari, safari va kruizlar. Narxlar so‘mda, to‘lov Payme, Click va Uzum orqali, tasdiq Telegramga keladi.</p>
+      <p>Ekskursiyalar, attraksion chiptalari, safari va kruizlar. Tasdiq Telegramga keladi.</p>
       <form class="hero-search" id="heroForm" role="search">
         <label class="sr" for="q2">Tur yoki joy nomi</label>
         <input id="q2" type="search" placeholder="Masalan: cho‘l safari" autocomplete="off">
@@ -274,7 +269,7 @@ footer a{color:var(--ink)}
 
   <div class="wrap">
     <div class="perks">
-      <div class="perk"><i aria-hidden="true">💳</i><div><b>To‘lov so‘mda</b><span>Humo, Uzcard, Payme, Click</span></div></div>
+      <div class="perk"><i aria-hidden="true">🏷️</i><div><b>Aniq narxlar</b><span>USD yoki AED da</span></div></div>
       <div class="perk"><i aria-hidden="true">⚡</i><div><b>Tez tasdiq</b><span>Vaucher 15 daqiqada</span></div></div>
       <div class="perk"><i aria-hidden="true">💬</i><div><b>O‘zbekcha yordam</b><span>Telegramda har kuni</span></div></div>
       <div class="perk"><i aria-hidden="true">↩️</i><div><b>Bepul bekor qilish</b><span>24 soat oldin</span></div></div>
@@ -321,8 +316,7 @@ footer a{color:var(--ink)}
     <div>
       <b>dubayvamen.uz</b><br>
       Dubay va BAA bo‘yicha ekskursiyalar, chiptalar va vizalar.<br>
-      Toshkent ofisi: +998 (71) 000-00-00
-      <div class="pay-row"><span>Payme</span><span>Click</span><span>Uzum</span><span>Humo</span><span>Uzcard</span><span>Visa</span></div>
+      Aloqa uchun: <a href="tel:+971553760330">+971 55 376 0330</a>
     </div>
     <div><b>Mijozlarga</b><br>Ko‘p so‘raladigan savollar<br>Bekor qilish shartlari<br>Ommaviy oferta</div>
     <div><b>Aloqa</b><br><a href="#">Telegram</a><br><a href="#">Instagram</a><br>info@dubayvamen.uz</div>
@@ -363,7 +357,7 @@ footer a{color:var(--ink)}
 
 <script>
 /* ===== Sozlamalar (admin paneldan keladi) ===== */
-const RATES = { USD: 1, AED: 3.6725, UZS: 12650 }; // namuna kurs, backenddan yangilanadi
+const RATES = { USD: 1, AED: 3.6725 }; // namuna kurs, backenddan yangilanadi
 const CATS = [
   { id: "all", name: "Hammasi", ico: "✨" },
   { id: "attr", name: "Diqqatga sazovor joylar", ico: "🏙️" },
@@ -435,20 +429,20 @@ const ITEMS = [
 ];
 
 /* ===== Holat ===== */
-const S = { cur: "UZS", cat: "all", q: "", sort: "pop", cart: [], orders: [], sel: null };
+const S = { cur: "USD", cat: "all", q: "", sort: "pop", cart: [], orders: [], sel: null };
 const store = {
   get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
 };
 S.cart = store.get("dv_cart", []);
 S.orders = store.get("dv_orders", []);
-S.cur = store.get("dv_cur", "UZS");
+S.cur = store.get("dv_cur", "USD");
+if (!RATES[S.cur]) S.cur = "USD"; // avval so‘m tanlaganlar uchun
 
 const $ = (s, r = document) => r.querySelector(s);
 const byId = id => ITEMS.find(x => x.id === id);
 function money(usd) {
   const v = usd * RATES[S.cur];
-  if (S.cur === "UZS") return (Math.round(v / 1000) * 1000).toLocaleString("ru-RU").replace(/,/g, " ") + " so‘m";
   if (S.cur === "AED") return Math.round(v) + " AED";
   return "$" + (Math.round(v * 100) / 100).toString();
 }
@@ -560,11 +554,9 @@ function openCart(focusForm) {
         <label>Ism va familiya<input name="name" required autocomplete="name" placeholder="Aziz Karimov" value="${tgUser ? esc((tgUser.first_name || "") + " " + (tgUser.last_name || "")).trim() : ""}"></label>
         <label>Telefon raqam<input name="phone" required type="tel" inputmode="tel" autocomplete="tel" placeholder="+998 90 123 45 67" pattern="^\\+?998[\\s-]?\\d{2}[\\s-]?\\d{3}[\\s-]?\\d{2}[\\s-]?\\d{2}$"></label>
         <label>Telegram (ixtiyoriy)<input name="tg" placeholder="@username" value="${tgUser && tgUser.username ? "@" + esc(tgUser.username) : ""}"></label>
-        <div><div class="field-label" style="margin-top:4px">To‘lov usuli</div>
-          <div class="pays">${["Payme","Click","Uzum","Karta (Visa)"].map((p, i) => `<label><input type="radio" name="pay" value="${p}" ${i ? "" : "checked"}>${p}</label>`).join("")}</div></div>
         <div class="err" id="formErr" role="alert"></div>
       </form>`;
-    foot.innerHTML = `<div class="total-row"><span>Jami to‘lov</span><strong>${money(cartTotal())}</strong></div><button class="btn block" type="submit" form="orderForm">To‘lovga o‘tish</button>`;
+    foot.innerHTML = `<div class="total-row"><span>Jami</span><strong>${money(cartTotal())}</strong></div><button class="btn block" type="submit" form="orderForm">Buyurtma berish</button>`;
     $("#orderForm").addEventListener("submit", submitOrder);
     if (focusForm) setTimeout(() => $("#orderForm [name=name]").focus({ preventScroll: true }), 300);
   }
@@ -581,21 +573,21 @@ function submitOrder(e) {
   if (!f.phone.checkValidity()) { err.textContent = "Telefonni +998 90 123 45 67 ko‘rinishida kiriting."; f.phone.focus(); return; }
   const order = {
     no: "DV-" + Date.now().toString().slice(-6), at: new Date().toISOString(),
-    name: f.name.value.trim(), phone: f.phone.value.trim(), tg: f.tg.value.trim(), pay: f.pay.value,
+    name: f.name.value.trim(), phone: f.phone.value.trim(), tg: f.tg.value.trim(),
     items: S.cart.map(l => ({ ...l, title: byId(l.id).t, sum: lineTotal(l) })), totalUsd: cartTotal(), cur: S.cur
   };
-  /* Bu yerda backendga yuboriladi: POST /api/orders → to‘lov havolasi (Payme/Click) qaytadi */
+  /* Bu yerda backendga yuboriladi: POST /api/orders */
   S.orders.unshift(order); store.set("dv_orders", S.orders);
   S.cart = []; store.set("dv_cart", S.cart); renderBadge(); haptic("success");
   $("#cBody").innerHTML = `<div class="done"><div class="big" aria-hidden="true">✅</div><h3>Buyurtma qabul qilindi</h3>
-    <p>Raqam: <b>${order.no}</b>. ${order.pay} orqali to‘lov havolasi ${order.tg || order.phone} ga yuboriladi. To‘lovdan keyin vaucher Telegramga keladi.</p>
+    <p>Raqam: <b>${order.no}</b>. Tez orada ${esc(order.tg || order.phone)} orqali siz bilan bog‘lanib, buyurtmani tasdiqlaymiz.</p>
     <button class="btn" type="button" id="seeOrders">Buyurtmalarimni ko‘rish</button></div>`;
   $("#cFoot").innerHTML = "";
   $("#seeOrders").onclick = () => { closeSheets(); setTimeout(openOrders, 120); };
 }
 function openOrders() {
   $("#oBody").innerHTML = S.orders.length ? S.orders.map(o => `<div class="order"><b><span>${o.no}</span><span>${money(o.totalUsd)}</span></b>
-    <span>${o.items.map(i => i.title + ", " + fmtDate(i.date)).join("; ")}</span><br><span>Holati: to‘lov kutilmoqda · ${o.pay}</span></div>`).join("")
+    <span>${o.items.map(i => i.title + ", " + fmtDate(i.date)).join("; ")}</span><br><span>Holati: tasdiq kutilmoqda</span></div>`).join("")
     : `<div class="done"><div class="big" aria-hidden="true">📋</div><h3>Buyurtmalar yo‘q</h3><p>Birinchi turingizni band qilganingizdan keyin u shu yerda ko‘rinadi.</p></div>`;
   openSheet("orders");
 }
