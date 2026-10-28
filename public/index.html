@@ -297,7 +297,7 @@ footer a{color:var(--ink)}
         <h2 id="tgTitle">Telegramda ham ochiladi</h2>
         <p>Xuddi shu katalog Telegram bot ichida mini ilova sifatida ishlaydi: ro‘yxatdan o‘tmasdan band qiling, vaucher chatga keladi.</p>
       </div>
-      <a class="btn" href="#" id="tgLink">@dubayvamen_bot</a>
+      <a class="btn" href="https://t.me/dubayvamenbot" target="_blank" rel="noopener" id="tgLink">@dubayvamenbot</a>
     </section>
 
     <section aria-labelledby="guideTitle" style="margin-bottom:48px">
@@ -319,7 +319,7 @@ footer a{color:var(--ink)}
       Aloqa uchun: <a href="tel:+971553760330">+971 55 376 0330</a>
     </div>
     <div><b>Mijozlarga</b><br>Ko‘p so‘raladigan savollar<br>Bekor qilish shartlari<br>Ommaviy oferta</div>
-    <div><b>Aloqa</b><br><a href="#">Telegram</a><br><a href="#">Instagram</a><br>info@dubayvamen.uz</div>
+    <div><b>Aloqa</b><br><a href="https://t.me/dubayvamenbot" target="_blank" rel="noopener">Telegram</a><br><a href="#">Instagram</a><br>info@dubayvamen.uz</div>
   </div>
 </footer>
 
@@ -660,7 +660,7 @@ if (TG) {
   TG.MainButton.onClick(() => openCart(true));
   TG.BackButton.onClick(closeSheets);
   $("#tgLink").closest(".tg-band").style.display = "none";
-  const start = TG.initDataUnsafe && TG.initDataUnsafe.start_param; // masalan t.me/dubayvamen_bot?startapp=2
+  const start = TG.initDataUnsafe && TG.initDataUnsafe.start_param; // masalan t.me/dubayvamenbot?startapp=2
   if (start && byId(Number(start))) setTimeout(() => openDetail(Number(start)), 300);
 }
 
