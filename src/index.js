@@ -42,7 +42,7 @@ async function checkLoginWidget(env, u) {
   const secret = await crypto.subtle.digest("SHA-256", enc.encode(env.TELEGRAM_BOT_TOKEN));
   if (!safeEqual(hex(await hmacRaw(secret, check)), String(hash))) return null;
   if (Date.now() / 1000 - Number(fields.auth_date) > 86400) return null;
-  return { id: String(fields.id), name: [fields.first_name, fields.last_name].filter(Boolean).join(" ") };
+  return { id: String(fields.id), name: [fields.first_name, fields.last_name].filter(Boolean).join(" "), username: fields.username || "" };
 }
 
 // Bot ichidagi mini ilovadan (Telegram.WebApp.initData): https://core.telegram.org/bots/webapps#validating-data-received-via-the-mini-app
@@ -56,7 +56,7 @@ async function checkMiniApp(env, initData) {
   if (!safeEqual(hex(await hmacRaw(secret, check)), hash)) return null;
   if (Date.now() / 1000 - Number(p.get("auth_date")) > 86400) return null;
   const user = JSON.parse(p.get("user") || "{}");
-  return { id: String(user.id), name: [user.first_name, user.last_name].filter(Boolean).join(" ") };
+  return { id: String(user.id), name: [user.first_name, user.last_name].filter(Boolean).join(" "), username: user.username || "" };
 }
 
 // Sessiya tokeni: "<muddat>.<telegram id>.<imzo>", 30 kun amal qiladi.
@@ -75,26 +75,50 @@ async function isAdmin(request, env) {
   return safeEqual(sig, await hmac(sessionKey(env), `admin:${exp}:${uid}`));
 }
 
-// Yangi buyurtma haqida adminlarga Telegram xabari
-async function notifyAdmins(env, o) {
+// Mijoz tokeni: "<muddat>.<telegram id>.<username base64>.<imzo>", 30 kun.
+// Buyurtma faqat shu token bilan qabul qilinadi — har bir buyurtma haqiqiy Telegram akkauntga bog‘lanadi.
+const u64 = (s) => b64url(enc.encode(s));
+const d64 = (s) => { try { return new TextDecoder().decode(Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0))); } catch { return ""; } };
+async function makeCustomerToken(env, who) {
+  const exp = Date.now() + TOKEN_DAYS * 864e5, un = u64(who.username || "");
+  return `${exp}.${who.id}.${un}.` + (await hmac(sessionKey(env), `cust:${exp}:${who.id}:${un}`));
+}
+async function customerOf(request, env) {
+  if (!env.TELEGRAM_BOT_TOKEN) return null;
+  const tok = (request.headers.get("authorization") || "").replace(/^Bearer /, "");
+  const [exp, uid, un, sig] = tok.split(".");
+  if (!exp || !uid || un === undefined || !sig || Number(exp) < Date.now()) return null;
+  if (!safeEqual(sig, await hmac(sessionKey(env), `cust:${exp}:${uid}:${un}`))) return null;
+  return { id: uid, username: d64(un) };
+}
+
+const tgSend = (env, chat_id, text) =>
+  fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ chat_id, text, parse_mode: "HTML", disable_web_page_preview: true }),
+  }).catch(() => {});
+
+// Yangi buyurtma haqida adminlarga, mijozga esa tasdiq xabari
+async function notifyOrder(env, o) {
   if (!env.TELEGRAM_BOT_TOKEN) return;
   const e = (s) => String(s ?? "").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
-  const lines = [
+  const items = o.items.map((i) => `• ${e(i.title)} — ${e(i.date)}${i.adults ? `, ${i.adults} katta` : ""}${i.kids ? `, ${i.kids} bola` : ""} · $${Math.round(i.sum)}`);
+  const admin = [
     `🆕 <b>Yangi buyurtma ${e(o.no)}</b>`,
     `👤 ${e(o.name)}`,
-    `📞 ${e(o.phone)}${o.tg ? `  ·  ${e(o.tg)}` : ""}`,
-    "",
-    ...o.items.map((i) => `• ${e(i.title)} — ${e(i.date)}${i.adults ? `, ${i.adults} katta` : ""}${i.kids ? `, ${i.kids} bola` : ""} · $${Math.round(i.sum)}`),
-    "",
+    `📞 ${e(o.phone)}`,
+    `✈️ ${o.tg ? e(o.tg) + "  ·  " : ""}<a href="tg://user?id=${e(o.tgId)}">Telegramda yozish</a>`,
+    "", ...items, "",
     `💰 Jami: <b>$${Math.round(o.totalUsd)}</b>`,
   ];
-  await Promise.all(adminIds(env).map((chat_id) =>
-    fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ chat_id, text: lines.join("\n"), parse_mode: "HTML" }),
-    }).catch(() => {})
-  ));
+  await Promise.all(adminIds(env).map((chat_id) => tgSend(env, chat_id, admin.join("\n"))));
+  // Mijoz kirishda bot xabar yuborishiga ruxsat bergan
+  await tgSend(env, o.tgId, [
+    `✅ <b>Buyurtmangiz qabul qilindi</b> (${e(o.no)})`, "", ...items, "",
+    `Jami: <b>$${Math.round(o.totalUsd)}</b>`,
+    "Tez orada siz bilan bog‘lanib, buyurtmani tasdiqlaymiz.",
+  ].join("\n"));
 }
 
 async function getData(env) {
@@ -137,7 +161,7 @@ async function handle(request, env, ctx) {
   // Sayt uchun: faqat faol turlar
   if (path === "/api/data" && method === "GET") {
     const d = await getData(env);
-    return json({ settings: d.settings, tours: d.tours.filter((t) => t.active !== false) }, 200, { "cache-control": "public, max-age=30" });
+    return json({ settings: { ...d.settings, bot: env.BOT_USERNAME || "" }, tours: d.tours.filter((t) => t.active !== false) }, 200, { "cache-control": "public, max-age=30" });
   }
 
   // Rasm berish
@@ -155,15 +179,32 @@ async function handle(request, env, ctx) {
     return res;
   }
 
-  // Mijoz buyurtmasi
+  // Mijoz Telegram orqali kiradi (sayt yoki bot ichidagi mini ilova)
+  if (path === "/api/auth/telegram" && method === "POST") {
+    if (!env.TELEGRAM_BOT_TOKEN) return json({ error: "Telegram sozlanmagan" }, 500);
+    let body = {};
+    try { body = await request.json(); } catch {}
+    const who = body.initData ? await checkMiniApp(env, str(body.initData, 4096)) : await checkLoginWidget(env, body.user || {});
+    if (!who) return json({ error: "Telegram ma’lumoti tasdiqlanmadi. Qayta urinib ko‘ring." }, 401);
+    return json({ token: await makeCustomerToken(env, who), user: who });
+  }
+
+  // Mijoz buyurtmasi — faqat Telegram orqali kirganlardan
   if (path === "/api/orders" && method === "POST") {
+    const cust = await customerOf(request, env);
+    if (!cust) return json({ error: "Buyurtma berish uchun Telegram orqali kiring", login: true }, 401);
+    // bitta akkauntdan soatiga ko‘pi bilan 5 ta buyurtma
+    const rlKey = "rl:" + cust.id;
+    const used = Number(await env.DB.get(rlKey)) || 0;
+    if (used >= 5) return json({ error: "Juda ko‘p buyurtma. Birozdan keyin urinib ko‘ring yoki bizga Telegramda yozing." }, 429);
     let o;
     try { o = await request.json(); } catch { return json({ error: "Noto‘g‘ri so‘rov" }, 400); }
     if (!str(o.name) || !str(o.phone)) return json({ error: "Ism va telefon kerak" }, 400);
     const at = new Date().toISOString();
     const order = {
       no: str(o.no, 20) || "DV-" + Date.now().toString().slice(-6), at, status: "new",
-      name: str(o.name, 100), phone: str(o.phone, 40), tg: str(o.tg, 60), cur: str(o.cur, 5),
+      tgId: cust.id, tg: cust.username ? "@" + cust.username : "",
+      name: str(o.name, 100), phone: str(o.phone, 40), cur: str(o.cur, 5),
       totalUsd: num(o.totalUsd),
       items: (Array.isArray(o.items) ? o.items : []).slice(0, 30).map((i) => ({
         id: num(i.id), title: str(i.title, 160), date: str(i.date, 10), adults: num(i.adults, 0, 50), kids: num(i.kids, 0, 50), sum: num(i.sum),
@@ -171,12 +212,13 @@ async function handle(request, env, ctx) {
     };
     const key = "order:" + (9e15 - Date.now()).toString().padStart(16, "0") + ":" + order.no; // yangilari birinchi
     await env.DB.put(key, JSON.stringify(order));
-    ctx.waitUntil(notifyAdmins(env, order));
+    await env.DB.put(rlKey, String(used + 1), { expirationTtl: 3600 });
+    ctx.waitUntil(notifyOrder(env, order));
     return json({ ok: true, no: order.no });
   }
 
   // ===== Admin =====
-  if (path === "/api/admin/config" && method === "GET") {
+  if ((path === "/api/admin/config" || path === "/api/config") && method === "GET") {
     return json({ bot: env.BOT_USERNAME || "" });
   }
   if (path === "/api/admin/login" && method === "POST") {

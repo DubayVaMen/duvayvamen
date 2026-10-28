@@ -11,6 +11,8 @@ Dubay turlari sayti (dubayvamen.uz), Cloudflare Workers'da. `main` branchga har 
 Faqat Telegram orqali. Panel faqat `ADMIN_TG_IDS` ro'yxatidagi akkauntlarda ochiladi.
 Yangi buyurtma tushganda shu akkauntlarga bot orqali xabar keladi.
 
+
+
 ## GitHub secret'lari (Settings → Secrets and variables → Actions)
 - `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` — deploy uchun
 - `TELEGRAM_BOT_TOKEN` — @BotFather → /mybots → bot → API Token

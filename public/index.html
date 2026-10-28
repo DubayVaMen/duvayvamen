@@ -194,6 +194,13 @@ footer a{color:var(--ink)}
 .form input{height:46px;border-radius:12px;border:1px solid var(--line);background:var(--bg);padding:0 14px;font-size:16px}
 .form input:invalid:not(:placeholder-shown){border-color:var(--sale)}
 .err{color:var(--sale);font-size:14px;min-height:1em}
+.tg-login{margin-top:18px;padding:18px;border-radius:16px;background:var(--sea-soft);border:1px solid var(--line);text-align:center}
+.tg-login b{display:block;font-size:16px}
+.tg-login p{margin:6px 0 14px;color:var(--muted);font-size:14px}
+.tg-box{min-height:44px;display:flex;justify-content:center;align-items:center}
+.tg-who{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:var(--sea-soft);font-size:14.5px}
+.tg-who .ok{color:var(--sea);font-weight:800}
+.tg-who button{border:0;background:none;color:var(--muted);font-weight:600;font-size:13px;text-decoration:underline;padding:0}
 .done{text-align:center;padding:24px 8px}
 .done .big{font-size:56px}
 .done h3{font-family:var(--display);font-size:22px;margin:8px 0}
@@ -395,6 +402,8 @@ const store = {
 };
 S.cart = store.get("dv_cart", []);
 S.orders = store.get("dv_orders", []);
+S.user = store.get("dv_user", null); // { token, user } — Telegram orqali kirgan mijoz
+if (S.user && !(Number(String(S.user.token).split(".")[0]) > Date.now())) S.user = null;
 S.cur = store.get("dv_cur", "USD");
 if (!RATES[S.cur]) S.cur = "USD"; // avval so‘m tanlaganlar uchun
 
@@ -510,20 +519,30 @@ function openCart(focusForm) {
     body.innerHTML = `<div class="done"><div class="big" aria-hidden="true">🧳</div><h3>Savat hozircha bo‘sh</h3><p>Katalogdan tur tanlang — sana va mehmonlar sonini belgilab, shu yerga qo‘shasiz.</p><button class="btn" type="button" id="toCat">Katalogga o‘tish</button></div>`;
     foot.innerHTML = ""; $("#toCat").onclick = () => { closeSheets(); $("#katalog").scrollIntoView({ behavior: "smooth" }); };
   } else {
-    const tgUser = TG && TG.initDataUnsafe && TG.initDataUnsafe.user;
+    const u = S.user && S.user.user;
     body.innerHTML = S.cart.map((l, i) => { const it = byId(l.id);
       return `<div class="c-item"><div class="c-ico">${photo(it)}</div>
         <div class="c-info"><b>${it.t}</b><span>${fmtDate(l.date)}${it.group ? "" : `, ${l.adults} katta${l.kids ? `, ${l.kids} bola` : ""}`}</span></div>
-        <div class="c-right"><strong>${money(lineTotal(l))}</strong><button type="button" data-rm="${i}">O‘chirish</button></div></div>`; }).join("") + `
+        <div class="c-right"><strong>${money(lineTotal(l))}</strong><button type="button" data-rm="${i}">O‘chirish</button></div></div>`; }).join("") + (u ? `
       <form class="form" id="orderForm" novalidate>
-        <label>Ism va familiya<input name="name" required autocomplete="name" placeholder="Aziz Karimov" value="${tgUser ? esc((tgUser.first_name || "") + " " + (tgUser.last_name || "")).trim() : ""}"></label>
+        <div class="tg-who"><span>✈️ Telegram: <b>${esc(u.username ? "@" + u.username : u.name)}</b> <span class="ok">✓</span></span><button type="button" id="tgOut">Boshqa akkaunt</button></div>
+        <label>Ism va familiya<input name="name" required autocomplete="name" placeholder="Aziz Karimov" value="${esc(u.name || "")}"></label>
         <label>Telefon raqam<input name="phone" required type="tel" inputmode="tel" autocomplete="tel" placeholder="+998 90 123 45 67" pattern="^\\+?998[\\s\\-]?\\d{2}[\\s\\-]?\\d{3}[\\s\\-]?\\d{2}[\\s\\-]?\\d{2}$"></label>
-        <label>Telegram (ixtiyoriy)<input name="tg" placeholder="@username" value="${tgUser && tgUser.username ? "@" + esc(tgUser.username) : ""}"></label>
         <div class="err" id="formErr" role="alert"></div>
-      </form>`;
-    foot.innerHTML = `<div class="total-row"><span>Jami</span><strong>${money(cartTotal())}</strong></div><button class="btn block" type="submit" form="orderForm">Buyurtma berish</button>`;
-    $("#orderForm").addEventListener("submit", submitOrder);
-    if (focusForm) setTimeout(() => $("#orderForm [name=name]").focus({ preventScroll: true }), 300);
+      </form>` : `
+      <div class="tg-login">
+        <b>Buyurtma berish uchun Telegram orqali kiring</b>
+        <p>Bir marta bosish kifoya. Buyurtma tasdig‘i va vaucher shu Telegram akkauntingizga keladi.</p>
+        <div id="tgLoginBox" class="tg-box"></div>
+        <div class="err" id="loginErr" role="alert"></div>
+      </div>`);
+    foot.innerHTML = `<div class="total-row"><span>Jami</span><strong>${money(cartTotal())}</strong></div>` +
+      (u ? `<button class="btn block" type="submit" form="orderForm">Buyurtma berish</button>` : "");
+    if (u) {
+      $("#orderForm").addEventListener("submit", submitOrder);
+      $("#tgOut").onclick = () => { S.user = null; store.set("dv_user", null); openCart(); };
+      if (focusForm) setTimeout(() => $("#orderForm [name=phone]").focus({ preventScroll: true }), 300);
+    } else mountTelegramLogin();
   }
   openSheet("cart");
 }
@@ -536,24 +555,27 @@ async function submitOrder(e) {
   const f = e.target, err = $("#formErr");
   if (!f.name.value.trim()) { err.textContent = "Ismingizni kiriting."; f.name.focus(); return; }
   if (!f.phone.checkValidity()) { err.textContent = "Telefonni +998 90 123 45 67 ko‘rinishida kiriting."; f.phone.focus(); return; }
+  const u = S.user.user;
   const order = {
     no: "DV-" + Date.now().toString().slice(-6), at: new Date().toISOString(),
-    name: f.name.value.trim(), phone: f.phone.value.trim(), tg: f.tg.value.trim(),
+    name: f.name.value.trim(), phone: f.phone.value.trim(), tg: u.username ? "@" + u.username : "",
     items: S.cart.map(l => ({ ...l, title: byId(l.id).t, sum: lineTotal(l) })), totalUsd: cartTotal(), cur: S.cur
   };
   const btn = $("#cFoot button[type=submit]");
   btn.disabled = true; btn.textContent = "Yuborilmoqda…"; err.textContent = "";
   try {
-    const r = await fetch("/api/orders", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(order) });
-    if (!r.ok) throw new Error();
+    const r = await fetch("/api/orders", { method: "POST", headers: { "content-type": "application/json", authorization: "Bearer " + S.user.token }, body: JSON.stringify(order) });
+    const j = await r.json().catch(() => ({}));
+    if (r.status === 401) { S.user = null; store.set("dv_user", null); openCart(); toast("Qaytadan Telegram orqali kiring"); return; }
+    if (!r.ok) throw new Error(j.error);
   } catch (x) {
-    err.textContent = "Buyurtma yuborilmadi. Internetni tekshirib, qayta urinib ko‘ring.";
+    err.textContent = x.message || "Buyurtma yuborilmadi. Internetni tekshirib, qayta urinib ko‘ring.";
     btn.disabled = false; btn.textContent = "Buyurtma berish"; return;
   }
   S.orders.unshift(order); store.set("dv_orders", S.orders);
   S.cart = []; store.set("dv_cart", S.cart); renderBadge(); haptic("success");
   $("#cBody").innerHTML = `<div class="done"><div class="big" aria-hidden="true">✅</div><h3>Buyurtma qabul qilindi</h3>
-    <p>Raqam: <b>${order.no}</b>. Tez orada ${esc(order.tg || order.phone)} orqali siz bilan bog‘lanib, buyurtmani tasdiqlaymiz.</p>
+    <p>Raqam: <b>${order.no}</b>. Tasdiq Telegramingizga yuborildi. Tez orada siz bilan bog‘lanib, buyurtmani tasdiqlaymiz.</p>
     <button class="btn" type="button" id="seeOrders">Buyurtmalarimni ko‘rish</button></div>`;
   $("#cFoot").innerHTML = "";
   $("#seeOrders").onclick = () => { closeSheets(); setTimeout(openOrders, 120); };
@@ -638,8 +660,31 @@ if (TG) {
   $("#tgLink").closest(".tg-band").style.display = "none";
 }
 
+/* ===== Mijoz Telegram orqali kiradi (soxta buyurtmalarga qarshi) ===== */
+let BOT = "";
+async function authTelegram(payload) {
+  const r = await fetch("/api/auth/telegram", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || "Kirib bo‘lmadi");
+  S.user = j; store.set("dv_user", j);
+}
+window.onTelegramAuth = async user => {
+  try { await authTelegram({ user }); haptic("success"); if (openId === "cart") openCart(true); }
+  catch (x) { const e = $("#loginErr"); if (e) e.textContent = x.message; }
+};
+function mountTelegramLogin() {
+  const box = $("#tgLoginBox"); if (!box) return;
+  if (!BOT) { box.innerHTML = `<span class="err">Telegram orqali kirish vaqtincha ishlamayapti. Bizga Telegramda yozing.</span>`; return; }
+  const s = document.createElement("script");
+  s.async = true; s.src = "https://telegram.org/js/telegram-widget.js?22";
+  s.setAttribute("data-telegram-login", BOT); s.setAttribute("data-size", "large"); s.setAttribute("data-radius", "12");
+  s.setAttribute("data-onauth", "onTelegramAuth(user)"); s.setAttribute("data-request-access", "write");
+  box.appendChild(s);
+}
+
 /* ===== Ma’lumotlarni yuklash (admin paneldan boshqariladi) ===== */
 function applySettings(s) {
+  BOT = s.bot || "";
   if (s.aed) RATES.AED = s.aed;
   if (s.phone) { $("#fPhone").textContent = s.phone; $("#fPhone").href = "tel:" + s.phone.replace(/[^\d+]/g, ""); }
   if (s.telegram) {
@@ -660,6 +705,8 @@ async function load() {
   // o‘chirilgan turlar savatda qolib ketmasin
   S.cart = S.cart.filter(l => byId(l.id)); store.set("dv_cart", S.cart);
   renderTabs(); renderGrid(); renderBadge();
+  // Bot ichidagi mini ilovada mijoz avtomatik kiradi
+  if (TG && !S.user) authTelegram({ initData: TG.initData }).catch(() => {});
   const start = TG && TG.initDataUnsafe && TG.initDataUnsafe.start_param; // masalan t.me/dubayvamenbot?startapp=2
   if (start && byId(Number(start))) setTimeout(() => openDetail(Number(start)), 300);
 }
