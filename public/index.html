@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>duvayvamen.uz — Dubay turlari va chiptalar</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F5F7FA;--surface:#FFFFFF;--ink:#152033;--muted:#5D6678;--line:#E2E6ED;
+  --sea:#0B7A84;--sea-ink:#FFFFFF;--sea-soft:#E3F3F4;--gold:#E29A2F;--sale:#C93C34;--chip:#EDF0F5;
+  --shadow:0 1px 2px rgba(21,32,51,.06),0 8px 24px rgba(21,32,51,.06);
+  --display:"Unbounded","Manrope",system-ui,sans-serif;
+  --body:"Manrope",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1420;--surface:#161F30;--ink:#E7ECF4;--muted:#9AA5B8;--line:#263248;
+    --sea:#36B7C1;--sea-ink:#04282C;--sea-soft:#14323A;--gold:#F0B35A;--sale:#F06A61;--chip:#1D283C;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1420;--surface:#161F30;--ink:#E7ECF4;--muted:#9AA5B8;--line:#263248;
+  --sea:#36B7C1;--sea-ink:#04282C;--sea-soft:#14323A;--gold:#F0B35A;--sale:#F06A61;--chip:#1D283C;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 72px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+img,svg{max-width:100%}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:6px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* header */
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:40;background:var(--surface)}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--surface);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:14px;height:64px}
+.logo{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink);font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:-.02em;white-space:nowrap}
+.logo small{font-family:var(--body);font-weight:600;font-size:13px;color:var(--muted);letter-spacing:0}
+.logo-mark{width:30px;height:30px;flex:none}
+.top-search{flex:1;max-width:420px;margin-left:auto;position:relative}
+.top-search input{width:100%;height:42px;border-radius:21px;border:1px solid var(--line);background:var(--bg);padding:0 16px 0 40px}
+.top-search svg{position:absolute;left:14px;top:12px;width:18px;height:18px;color:var(--muted)}
+.cur{height:42px;border-radius:21px;border:1px solid var(--line);background:var(--surface);padding:0 12px;font-weight:600}
+.icon-btn{position:relative;height:42px;min-width:42px;border-radius:21px;border:1px solid var(--line);background:var(--surface);display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 12px;font-weight:600}
+.icon-btn svg{width:20px;height:20px}
+.badge{position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;border-radius:10px;background:var(--sale);color:#fff;font-size:12px;font-weight:700;display:grid;place-items:center;padding:0 5px}
+.badge[hidden]{display:none}
+
+/* hero */
+.hero{position:relative;overflow:hidden;color:#fff;background:linear-gradient(180deg,#1A2752 0%,#4B3A78 38%,#C25B78 70%,#F2A65A 100%)}
+.hero .wrap{position:relative;z-index:2;padding-top:56px;padding-bottom:150px}
+.hero h1{font-family:var(--display);font-weight:700;font-size:clamp(30px,5.4vw,58px);line-height:1.04;letter-spacing:-.03em;margin:0 0 14px;max-width:13ch}
+.hero p{margin:0 0 26px;font-size:18px;max-width:46ch;color:rgba(255,255,255,.88)}
+.hero-search{display:flex;gap:8px;max-width:560px;background:#fff;border-radius:16px;padding:6px;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.hero-search input{flex:1;border:0;background:transparent;padding:0 12px;color:#152033;min-width:0;height:48px;font-size:16px}
+.hero-search input::placeholder{color:#6B7385}
+.hero-search input:focus{outline:none}
+.btn{border:0;border-radius:12px;height:48px;padding:0 20px;font-weight:700;background:var(--sea);color:var(--sea-ink);display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+.btn:hover{filter:brightness(1.06)}
+.btn.gold{background:var(--gold);color:#2A1A04}
+.btn.ghost{background:var(--chip);color:var(--ink)}
+.btn.block{width:100%}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.hero-quick{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.hero-quick button{border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);color:#fff;border-radius:999px;padding:7px 14px;font-weight:600;font-size:14px}
+.hero-quick button:hover{background:rgba(255,255,255,.22)}
+.skyline{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:190px;z-index:1;color:var(--bg)}
+.sun{position:absolute;right:12%;bottom:120px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,#FFD9A0 0%,#F6B26B 60%,rgba(246,178,107,0) 72%);z-index:0}
+@media (prefers-reduced-motion:no-preference){
+  .sun{animation:rise 1.6s cubic-bezier(.2,.7,.2,1) both}
+  @keyframes rise{from{transform:translateY(80px);opacity:0}to{transform:none;opacity:1}}
+}
+
+/* perks */
+.perks{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin:-34px 0 36px;position:relative;z-index:3;box-shadow:var(--shadow)}
+.perk{background:var(--surface);padding:16px 18px;display:flex;gap:12px;align-items:flex-start}
+.perk b{display:block;font-size:15px}
+.perk span{color:var(--muted);font-size:13.5px;line-height:1.4}
+.perk i{font-style:normal;font-size:22px;line-height:1}
+
+/* catalog */
+.sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:0 0 14px;flex-wrap:wrap}
+h2{font-family:var(--display);font-weight:700;font-size:clamp(22px,3vw,30px);letter-spacing:-.02em;margin:0;line-height:1.15}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 12px;scrollbar-width:none;margin-bottom:6px}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:9px 15px;font-weight:600;font-size:14.5px;display:flex;gap:6px;align-items:center}
+.tab[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.sort{height:40px;border-radius:10px;border:1px solid var(--line);background:var(--surface);padding:0 10px;font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:18px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;text-align:left;padding:0;transition:transform .15s ease,box-shadow .15s ease}
+.card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.thumb{position:relative;aspect-ratio:16/10;display:grid;place-items:center;font-size:56px}
+.thumb .tag{position:absolute;left:10px;top:10px;background:rgba(255,255,255,.92);color:#152033;font-size:12.5px;font-weight:700;border-radius:8px;padding:3px 8px}
+.thumb .off{position:absolute;right:10px;top:10px;background:var(--sale);color:#fff;font-size:12.5px;font-weight:800;border-radius:8px;padding:3px 8px}
+.card-body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px;flex:1}
+.card h3{font-size:16.5px;line-height:1.3;margin:0;font-weight:700}
+.meta{display:flex;gap:12px;color:var(--muted);font-size:13.5px;flex-wrap:wrap}
+.meta .star{color:var(--gold);font-weight:700}
+.price{margin-top:auto;padding-top:8px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.price small{color:var(--muted);font-size:13px}
+.price strong{font-size:19px;font-weight:800;letter-spacing:-.01em}
+.price s{color:var(--muted);font-size:14px}
+.empty{padding:48px 20px;text-align:center;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:18px}
+
+/* guide */
+.guide{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:14px}
+.g-item{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px}
+.g-item h3{margin:0 0 6px;font-size:17px}
+.g-item p{margin:0;color:var(--muted);font-size:15px}
+.tg-band{margin:56px 0;border-radius:24px;padding:28px;display:flex;gap:24px;align-items:center;justify-content:space-between;background:var(--sea-soft);border:1px solid var(--line);flex-wrap:wrap}
+.tg-band h2{margin-bottom:6px}
+.tg-band p{margin:0;color:var(--muted);max-width:52ch}
+
+footer{border-top:1px solid var(--line);background:var(--surface);padding:32px 0 110px;color:var(--muted);font-size:14.5px}
+footer .cols{display:grid;grid-template-columns:2fr 1fr 1fr;gap:24px}
+footer b{color:var(--ink)}
+footer a{color:var(--ink)}
+.pay-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.pay-row span{border:1px solid var(--line);border-radius:8px;padding:3px 10px;font-weight:700;color:var(--ink);font-size:13px}
+
+/* sheets */
+.overlay{position:fixed;inset:0;background:rgba(8,12,22,.5);z-index:50;opacity:0;pointer-events:none;transition:opacity .2s}
+.overlay.open{opacity:1;pointer-events:auto}
+.sheet{position:fixed;z-index:60;background:var(--surface);color:var(--ink);display:flex;flex-direction:column;
+  left:50%;top:50%;width:min(560px,calc(100% - 32px));max-height:min(88vh,860px);border-radius:22px;
+  transform:translate(-50%,-46%);opacity:0;pointer-events:none;transition:transform .22s ease,opacity .22s ease;box-shadow:0 30px 80px rgba(0,0,0,.35)}
+.sheet.open{transform:translate(-50%,-50%);opacity:1;pointer-events:auto}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid var(--line)}
+.sheet-head h3{margin:0;font-size:18px}
+.close{border:0;background:var(--chip);width:36px;height:36px;border-radius:50%;font-size:20px;line-height:1}
+.sheet-body{overflow-y:auto;padding:18px;flex:1}
+.sheet-foot{padding:14px 18px;border-top:1px solid var(--line);padding-bottom:calc(14px + env(safe-area-inset-bottom,0px))}
+@media (max-width:640px){
+  .sheet{left:0;right:0;top:auto;bottom:0;width:100%;max-height:92vh;border-radius:22px 22px 0 0;transform:translateY(100%);opacity:1}
+  .sheet.open{transform:none}
+}
+.d-thumb{border-radius:16px;aspect-ratio:16/8;display:grid;place-items:center;font-size:64px;margin-bottom:14px}
+.d-title{font-family:var(--display);font-size:22px;line-height:1.2;letter-spacing:-.02em;margin:0 0 8px}
+.d-desc{color:var(--muted);margin:10px 0 14px}
+.incl{list-style:none;padding:0;margin:0 0 18px;display:grid;gap:6px}
+.incl li{display:flex;gap:8px;font-size:15px}
+.incl li::before{content:"✓";color:var(--sea);font-weight:800}
+.field-label{font-weight:700;margin:16px 0 8px;font-size:15px}
+.dates{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin}
+.date{flex:none;width:62px;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:8px 0;text-align:center;line-height:1.2}
+.date b{display:block;font-size:18px}
+.date span{font-size:12px;color:var(--muted)}
+.date[aria-pressed="true"]{background:var(--sea);border-color:var(--sea);color:var(--sea-ink)}
+.date[aria-pressed="true"] span{color:inherit}
+.counter{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line)}
+.counter:last-child{border-bottom:0}
+.counter small{display:block;color:var(--muted);font-size:13px}
+.step{display:flex;align-items:center;gap:12px}
+.step button{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--surface);font-size:18px;font-weight:700}
+.step output{min-width:20px;text-align:center;font-weight:800}
+.total-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.total-row strong{font-size:22px;font-weight:800}
+.foot-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.c-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.c-ico{width:56px;height:56px;border-radius:12px;display:grid;place-items:center;font-size:26px;flex:none}
+.c-info{flex:1;min-width:0}
+.c-info b{display:block;font-size:15px;line-height:1.3}
+.c-info span{color:var(--muted);font-size:13.5px}
+.c-right{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.c-right button{border:0;background:none;color:var(--sale);font-weight:600;font-size:13.5px;padding:0}
+.form{display:grid;gap:12px;margin-top:18px}
+.form label{display:grid;gap:6px;font-weight:600;font-size:14.5px}
+.form input{height:46px;border-radius:12px;border:1px solid var(--line);background:var(--bg);padding:0 14px;font-size:16px}
+.form input:invalid:not(:placeholder-shown){border-color:var(--sale)}
+.pays{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.pays label{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-weight:700;cursor:pointer}
+.pays label:has(input:checked){border-color:var(--sea);background:var(--sea-soft)}
+.err{color:var(--sale);font-size:14px;min-height:1em}
+.done{text-align:center;padding:24px 8px}
+.done .big{font-size:56px}
+.done h3{font-family:var(--display);font-size:22px;margin:8px 0}
+.done p{color:var(--muted);margin:0 auto 18px;max-width:38ch}
+.order{border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px}
+.order b{display:flex;justify-content:space-between}
+.order span{color:var(--muted);font-size:14px}
+
+/* bottom nav (mobile / Telegram) */
+.bnav{display:none}
+@media (max-width:760px){
+  .top-search,.cur-desktop,.orders-desktop,#cartBtn{display:none}
+  .top .wrap{height:58px}
+  .hero .wrap{padding-top:36px;padding-bottom:120px}
+  .hero p{font-size:16px}
+  .skyline{height:130px}
+  .sun{width:90px;height:90px;bottom:80px}
+  .perks{grid-template-columns:1fr 1fr;margin-top:-26px}
+  .perk{padding:12px}
+  .guide{grid-template-columns:1fr}
+  footer .cols{grid-template-columns:1fr}
+  .grid{grid-template-columns:1fr 1fr;gap:12px}
+  .card h3{font-size:14.5px}
+  .card-body{padding:10px 12px 12px}
+  .price strong{font-size:16px}
+  .thumb{font-size:42px}
+  .meta{font-size:12.5px;gap:8px}
+  .bnav{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;left:0;right:0;bottom:0;z-index:35;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+  .bnav button{border:0;background:none;padding:8px 0 10px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11.5px;font-weight:600;color:var(--muted);position:relative}
+  .bnav button svg{width:22px;height:22px}
+  .bnav button.on{color:var(--sea)}
+  .bnav .badge{top:2px;right:calc(50% - 22px)}
+}
+@media (max-width:380px){.grid{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#" aria-label="duvayvamen.uz bosh sahifa">
+      <svg class="logo-mark" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="16" fill="#0B7A84"/><path d="M16 4l1.6 10H22v14H10V14h4.4z" fill="#F2A65A"/><rect x="6" y="20" width="4" height="8" fill="#fff" opacity=".85"/><rect x="22" y="17" width="4" height="11" fill="#fff" opacity=".85"/></svg>
+      duvayvamen<small>.uz</small>
+    </a>
+    <div class="top-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <label class="sr" for="q1">Qidiruv</label>
+      <input id="q1" type="search" placeholder="Safari, Burj Khalifa, kruiz…" autocomplete="off">
+    </div>
+    <label class="sr" for="cur">Valyuta</label>
+    <select id="cur" class="cur cur-desktop">
+      <option value="UZS">so‘m</option><option value="USD">USD</option><option value="AED">AED</option>
+    </select>
+    <button class="icon-btn orders-desktop" id="ordersBtn" type="button">Buyurtmalarim</button>
+    <button class="icon-btn" id="cartBtn" type="button" aria-label="Savat">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 4h2l2.4 11.2a2 2 0 002 1.6h7.7a2 2 0 002-1.5L21 8H6"/><circle cx="10" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/></svg>
+      <span class="badge" id="cartBadge" hidden>0</span>
+    </button>
+  </div>
+</header>
+
+<main>
+  <section class="hero" aria-labelledby="heroTitle">
+    <div class="sun" aria-hidden="true"></div>
+    <div class="wrap">
+      <h1 id="heroTitle">Dubayda nima qilamiz?</h1>
+      <p>Ekskursiyalar, attraksion chiptalari, safari va kruizlar. Narxlar so‘mda, to‘lov Payme, Click va Uzum orqali, tasdiq Telegramga keladi.</p>
+      <form class="hero-search" id="heroForm" role="search">
+        <label class="sr" for="q2">Tur yoki joy nomi</label>
+        <input id="q2" type="search" placeholder="Masalan: cho‘l safari" autocomplete="off">
+        <button class="btn" type="submit">Topish</button>
+      </form>
+      <div class="hero-quick" id="quick"></div>
+    </div>
+    <svg class="skyline" viewBox="0 0 1440 190" preserveAspectRatio="none" aria-hidden="true">
+      <path fill="#121A36" opacity=".55" d="M0 150h60v-30h30v-20h24v50h40v-60h28v60h50v-36h36v36h60v-70h20v-10h20v80h70v-44h40v44h58v-56h30v56h80v-40h44v40h60v-62h26v62h70v-30h40v30h60v-50h34v50h80v-34h46v34h70v-58h30v58h80v-26h40v26h40v40H0z"/>
+      <path fill="#0E1530" d="M0 166h90v-40h36v40h60v-58h44v58h40v-30h28v30h70v-72h34v72h46V120h40v46h40v-90h18v-36h10v-20h6v-34h4v34h6v20h10v36h18v90h50v-60h40v60h60v-44h30v44h80v-80h22l10-14 10 14h22v80h50v-38h40v38h70v-64h36v64h60v-30h50v30h70v-52h34v52h80v-40h40v40h60v24H0z"/>
+      <path fill="currentColor" d="M0 176c120-8 260-8 380 0s260 8 380 0 260-8 380 0 220 6 300 2v12H0z"/>
+    </svg>
+  </section>
+
+  <div class="wrap">
+    <div class="perks">
+      <div class="perk"><i aria-hidden="true">💳</i><div><b>To‘lov so‘mda</b><span>Humo, Uzcard, Payme, Click</span></div></div>
+      <div class="perk"><i aria-hidden="true">⚡</i><div><b>Tez tasdiq</b><span>Vaucher 15 daqiqada</span></div></div>
+      <div class="perk"><i aria-hidden="true">💬</i><div><b>O‘zbekcha yordam</b><span>Telegramda har kuni</span></div></div>
+      <div class="perk"><i aria-hidden="true">↩️</i><div><b>Bepul bekor qilish</b><span>24 soat oldin</span></div></div>
+    </div>
+
+    <section id="katalog" aria-labelledby="catTitle">
+      <div class="sec-head">
+        <h2 id="catTitle">Turlar va chiptalar</h2>
+        <div>
+          <label class="sr" for="sort">Saralash</label>
+          <select id="sort" class="sort">
+            <option value="pop">Mashhurlari</option>
+            <option value="low">Avval arzonlari</option>
+            <option value="high">Avval qimmatlari</option>
+            <option value="rate">Reyting bo‘yicha</option>
+          </select>
+        </div>
+      </div>
+      <div class="tabs" id="tabs" role="toolbar" aria-label="Turkumlar"></div>
+      <div class="grid" id="grid" aria-live="polite"></div>
+    </section>
+
+    <section class="tg-band" aria-labelledby="tgTitle">
+      <div>
+        <h2 id="tgTitle">Telegramda ham ochiladi</h2>
+        <p>Xuddi shu katalog Telegram bot ichida mini ilova sifatida ishlaydi: ro‘yxatdan o‘tmasdan band qiling, vaucher chatga keladi.</p>
+      </div>
+      <a class="btn" href="#" id="tgLink">@duvayvamen_bot</a>
+    </section>
+
+    <section aria-labelledby="guideTitle" style="margin-bottom:48px">
+      <h2 id="guideTitle">Safardan oldin bilib qo‘ying</h2>
+      <div class="guide">
+        <div class="g-item"><h3>Viza</h3><p>O‘zbekiston fuqarolari BAAga elektron viza bilan kiradi. Rasmiylashtirishni biz qilamiz, odatda 3–5 ish kuni.</p></div>
+        <div class="g-item"><h3>Qachon borish kerak</h3><p>Oktyabrdan aprelgacha havo yoqimli. Yozda cho‘l safarisi faqat kechqurun, kunduzi yopiq attraksionlar.</p></div>
+        <div class="g-item"><h3>Shahar ichida</h3><p>Metro va taksi qulay. Nol kartasini aeroportda oling. Ko‘p turlarga mehmonxonadan olib ketish kiritilgan.</p></div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap cols">
+    <div>
+      <b>duvayvamen.uz</b><br>
+      Dubay va BAA bo‘yicha ekskursiyalar, chiptalar va vizalar.<br>
+      Toshkent ofisi: +998 (71) 000-00-00
+      <div class="pay-row"><span>Payme</span><span>Click</span><span>Uzum</span><span>Humo</span><span>Uzcard</span><span>Visa</span></div>
+    </div>
+    <div><b>Mijozlarga</b><br>Ko‘p so‘raladigan savollar<br>Bekor qilish shartlari<br>Ommaviy oferta</div>
+    <div><b>Aloqa</b><br><a href="#">Telegram</a><br><a href="#">Instagram</a><br>info@duvayvamen.uz</div>
+  </div>
+</footer>
+
+<nav class="bnav" aria-label="Asosiy menyu">
+  <button type="button" class="on" data-nav="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg>Asosiy</button>
+  <button type="button" data-nav="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>Qidirish</button>
+  <button type="button" data-nav="cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 4h2l2.4 11.2a2 2 0 002 1.6h7.7a2 2 0 002-1.5L21 8H6"/><circle cx="10" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/></svg>Savat<span class="badge" id="cartBadge2" hidden>0</span></button>
+  <button type="button" data-nav="orders"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Buyurtmalar</button>
+</nav>
+
+<div class="overlay" id="overlay"></div>
+
+<div class="sheet" id="detail" role="dialog" aria-modal="true" aria-labelledby="dTitle">
+  <div class="sheet-head"><h3>Tur haqida</h3><button class="close" data-close aria-label="Yopish">×</button></div>
+  <div class="sheet-body" id="dBody"></div>
+  <div class="sheet-foot">
+    <div class="total-row"><span>Jami</span><strong id="dTotal">0</strong></div>
+    <div class="foot-btns">
+      <button class="btn ghost" id="addCart" type="button">Savatga qo‘shish</button>
+      <button class="btn" id="bookNow" type="button">Hozir band qilish</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="cart" role="dialog" aria-modal="true" aria-labelledby="cTitle">
+  <div class="sheet-head"><h3 id="cTitle">Savat</h3><button class="close" data-close aria-label="Yopish">×</button></div>
+  <div class="sheet-body" id="cBody"></div>
+  <div class="sheet-foot" id="cFoot"></div>
+</div>
+
+<div class="sheet" id="orders" role="dialog" aria-modal="true" aria-labelledby="oTitle">
+  <div class="sheet-head"><h3 id="oTitle">Buyurtmalarim</h3><button class="close" data-close aria-label="Yopish">×</button></div>
+  <div class="sheet-body" id="oBody"></div>
+</div>
+
+<script>
+/* ===== Sozlamalar (admin paneldan keladi) ===== */
+const RATES = { USD: 1, AED: 3.6725, UZS: 12650 }; // namuna kurs, backenddan yangilanadi
+const CATS = [
+  { id: "all", name: "Hammasi", ico: "✨" },
+  { id: "attr", name: "Diqqatga sazovor joylar", ico: "🏙️" },
+  { id: "safari", name: "Cho‘l safari", ico: "🐪" },
+  { id: "cruise", name: "Kruiz va yaxta", ico: "🛥️" },
+  { id: "park", name: "Parklar", ico: "🎢" },
+  { id: "event", name: "Shou va tadbirlar", ico: "🎭" },
+  { id: "city", name: "Shahar turlari", ico: "🚌" },
+  { id: "visa", name: "Viza va transfer", ico: "🛂" }
+];
+const GRAD = {
+  attr: "linear-gradient(160deg,#2F5FC9,#8EC5F2)", safari: "linear-gradient(160deg,#D9692C,#F6C46B)",
+  cruise: "linear-gradient(160deg,#0A5A85,#38BAC3)", park: "linear-gradient(160deg,#7136D1,#E45FA4)",
+  event: "linear-gradient(160deg,#261B57,#C2577A)", city: "linear-gradient(160deg,#17775A,#9BD27A)",
+  visa: "linear-gradient(160deg,#334155,#93A3B8)"
+};
+const ITEMS = [
+  { id: 1, cat: "attr", ico: "🗼", t: "Burj Khalifa: 124–125-qavat", p: 45, old: 0, r: 4.8, n: 2140, dur: "1–2 soat", city: "Dubay", pop: 99,
+    d: "Dunyodagi eng baland binoning kuzatuv maydonchasi. Quyosh botishidagi vaqt oralig‘ini oldindan band qilish tavsiya etiladi.",
+    inc: ["Kirish chiptasi", "Tezkor lift", "Audio gid (rus tilida)"] },
+  { id: 2, cat: "safari", ico: "🐪", t: "Kechki cho‘l safari: BBQ va shou", p: 39, old: 55, r: 4.7, n: 3310, dur: "6 soat", city: "Dubay", pop: 98,
+    d: "Jip bilan qum tepaliklarida sayr, tuya minish, sendbording, kechki ovqat va tanura shou.",
+    inc: ["Mehmonxonadan olib ketish", "Bufet kechki ovqat", "Tuya minish", "Shou dasturi"] },
+  { id: 3, cat: "cruise", ico: "⛵", t: "Marinada dhow kruiz, kechki ovqat bilan", p: 35, old: 0, r: 4.5, n: 1180, dur: "2 soat", city: "Dubay", pop: 90,
+    d: "An’anaviy yog‘och qayiqda Dubay Marina bo‘ylab sayr. Bufet, jonli musiqa.",
+    inc: ["Bufet kechki ovqat", "Ichimliklar", "Jonli musiqa"] },
+  { id: 4, cat: "attr", ico: "🖼️", t: "Dubay Frame", p: 14, old: 0, r: 4.6, n: 940, dur: "1 soat", city: "Dubay", pop: 80,
+    d: "150 metrlik ramka: bir tomonda eski Dubay, ikkinchi tomonda yangi shahar.",
+    inc: ["Kirish chiptasi", "Shisha pol ko‘prigi"] },
+  { id: 5, cat: "attr", ico: "🔭", t: "Kelajak muzeyi", p: 46, old: 0, r: 4.7, n: 1620, dur: "2–3 soat", city: "Dubay", pop: 92,
+    d: "Kelajak texnologiyalari haqidagi interaktiv muzey. Sessiya vaqtini tanlash kerak.",
+    inc: ["Kirish chiptasi", "Barcha qavatlar"] },
+  { id: 6, cat: "park", ico: "🌊", t: "Atlantis Aquaventure aquaparki", p: 85, old: 110, r: 4.8, n: 1870, dur: "Kun bo‘yi", city: "Dubay", pop: 94,
+    d: "Dunyodagi eng katta aquaparklardan biri: 100 dan ortiq attraksion va xususiy plyaj.",
+    inc: ["Kun bo‘yi kirish", "Plyaj", "Shkafcha (chegirma bilan)"] },
+  { id: 7, cat: "park", ico: "🎢", t: "IMG Worlds of Adventure", p: 75, old: 99, r: 4.4, n: 760, dur: "Kun bo‘yi", city: "Dubay", pop: 78,
+    d: "Yopiq tematik park — yozda ham salqin. Bolalar va kattalar uchun zonalar.",
+    inc: ["Kun bo‘yi kirish", "Barcha attraksionlar"] },
+  { id: 8, cat: "city", ico: "🕌", t: "Dubay shahar turi (yarim kun)", p: 29, old: 0, r: 4.5, n: 1050, dur: "4 soat", city: "Dubay", pop: 85,
+    d: "Jumeyra masjidi, Burj al-Arab, Palma oroli, eski shahar va oltin bozori.",
+    inc: ["Transport", "Rus tilida gid", "Abra qayig‘i"] },
+  { id: 9, cat: "city", ico: "🕍", t: "Abu-Dabi turi: Shayx Zoid masjidi", p: 55, old: 69, r: 4.7, n: 1430, dur: "10 soat", city: "Abu-Dabi", pop: 88,
+    d: "Dubaydan Abu-Dabiga sayohat: Shayx Zoid masjidi, Qasr al-Vatan va qirg‘oq bo‘yi.",
+    inc: ["Transport", "Gid", "Tushlik"] },
+  { id: 10, cat: "park", ico: "🏎️", t: "Ferrari World, Abu-Dabi", p: 95, old: 0, r: 4.6, n: 690, dur: "Kun bo‘yi", city: "Abu-Dabi", pop: 76,
+    d: "Dunyodagi eng tez rollercoaster joylashgan yopiq park.",
+    inc: ["Kun bo‘yi kirish"] },
+  { id: 11, cat: "cruise", ico: "🛥️", t: "Yaxta ijarasi, 2 soat (10 kishigacha)", p: 220, old: 260, r: 4.9, n: 210, dur: "2 soat", city: "Dubay", pop: 70, group: true,
+    d: "Marinadan Palma va Burj al-Arabgacha shaxsiy yaxta. Narx butun yaxta uchun.",
+    inc: ["Kapitan va ekipaj", "Suv va muz", "Musiqa tizimi"] },
+  { id: 12, cat: "attr", ico: "🐠", t: "Dubay akvariumi va suv osti zoo", p: 42, old: 0, r: 4.5, n: 820, dur: "2 soat", city: "Dubay", pop: 74,
+    d: "Dubay Mall ichidagi ulkan akvarium, tunnel va suv osti hayvonot bog‘i.",
+    inc: ["Akvarium tunneli", "Suv osti zoo"] },
+  { id: 13, cat: "event", ico: "🎡", t: "Global Village", p: 7, old: 0, r: 4.6, n: 1980, dur: "Kechqurun", city: "Dubay", pop: 86,
+    d: "90 dan ortiq mamlakat paviloni, ko‘cha taomlari, shou va attraksionlar. Mavsum: oktyabr–may.",
+    inc: ["Kirish chiptasi"] },
+  { id: 14, cat: "event", ico: "💧", t: "Suv va akrobatika shousi", p: 49, old: 0, r: 4.8, n: 530, dur: "90 daqiqa", city: "Dubay", pop: 72,
+    d: "Suv sahnasida akrobatlar ishtirokidagi teatr shousi. O‘rindiq toifasini tanlang.",
+    inc: ["Shou chiptasi"] },
+  { id: 15, cat: "safari", ico: "🏍️", t: "Kvadrotsikl va cho‘l safari", p: 65, old: 79, r: 4.6, n: 640, dur: "7 soat", city: "Dubay", pop: 77,
+    d: "30 daqiqa kvadrotsiklda haydash, so‘ng kechki safari dasturi.",
+    inc: ["Kvadrotsikl 30 daqiqa", "Transport", "Kechki ovqat"] },
+  { id: 16, cat: "visa", ico: "🛂", t: "BAA turistik vizasi, 30 kun", p: 95, old: 0, r: 4.9, n: 2600, dur: "3–5 ish kuni", city: "Onlayn", pop: 96, nokids: true,
+    d: "Pasport nusxasi va rasm yetarli. Tayyor viza Telegram va pochtangizga yuboriladi.",
+    inc: ["Hujjatlarni tekshirish", "Davlat boji", "Sug‘urta"] },
+  { id: 17, cat: "visa", ico: "🚖", t: "Aeroport transferi (DXB → mehmonxona)", p: 30, old: 0, r: 4.7, n: 980, dur: "Bir tomon", city: "Dubay", pop: 82, group: true,
+    d: "Haydovchi sizni chiqishda ismingiz yozilgan taxtacha bilan kutadi. 4 kishigacha.",
+    inc: ["Kutish 60 daqiqa", "Suv", "Bagaj"] }
+];
+
+/* ===== Holat ===== */
+const S = { cur: "UZS", cat: "all", q: "", sort: "pop", cart: [], orders: [], sel: null };
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+S.cart = store.get("dv_cart", []);
+S.orders = store.get("dv_orders", []);
+S.cur = store.get("dv_cur", "UZS");
+
+const $ = (s, r = document) => r.querySelector(s);
+const byId = id => ITEMS.find(x => x.id === id);
+function money(usd) {
+  const v = usd * RATES[S.cur];
+  if (S.cur === "UZS") return (Math.round(v / 1000) * 1000).toLocaleString("ru-RU").replace(/,/g, " ") + " so‘m";
+  if (S.cur === "AED") return Math.round(v) + " AED";
+  return "$" + (Math.round(v * 100) / 100).toString();
+}
+const MONTHS = ["yan","fev","mar","apr","may","iyn","iyl","avg","sen","okt","noy","dek"];
+const WD = ["Ya","Du","Se","Ch","Pa","Ju","Sh"];
+function fmtDate(iso) { const d = new Date(iso + "T00:00:00"); return d.getDate() + " " + MONTHS[d.getMonth()]; }
+const kidPrice = it => it.group || it.nokids ? 0 : it.p * 0.75;
+function lineTotal(l) { const it = byId(l.id); return it.group ? it.p : it.p * l.adults + kidPrice(it) * l.kids; }
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+/* ===== Katalog ===== */
+function renderTabs() {
+  $("#tabs").innerHTML = CATS.map(c =>
+    `<button class="tab" type="button" data-cat="${c.id}" aria-pressed="${S.cat === c.id}"><span aria-hidden="true">${c.ico}</span>${c.name}</button>`).join("");
+  $("#quick").innerHTML = ["Cho‘l safari", "Burj Khalifa", "Aquapark", "Viza"].map(q =>
+    `<button type="button" data-q="${q}">${q}</button>`).join("");
+}
+function filtered() {
+  const q = S.q.trim().toLowerCase();
+  let list = ITEMS.filter(it => (S.cat === "all" || it.cat === S.cat) &&
+    (!q || (it.t + " " + it.d + " " + it.city + " " + CATS.find(c => c.id === it.cat).name).toLowerCase().includes(q)));
+  const f = { pop: (a, b) => b.pop - a.pop, low: (a, b) => a.p - b.p, high: (a, b) => b.p - a.p, rate: (a, b) => b.r - a.r }[S.sort];
+  return list.sort(f);
+}
+function renderGrid() {
+  const list = filtered();
+  if (!list.length) {
+    $("#grid").innerHTML = `<div class="empty" style="grid-column:1/-1">“${esc(S.q)}” bo‘yicha hech narsa topilmadi. Boshqa so‘z bilan qidiring yoki <button class="btn ghost" type="button" id="reset" style="height:36px;margin-left:6px">barcha turlarni ko‘rsating</button></div>`;
+    $("#reset").onclick = () => { S.q = ""; S.cat = "all"; $("#q1").value = $("#q2").value = ""; renderTabs(); renderGrid(); };
+    return;
+  }
+  $("#grid").innerHTML = list.map(it => {
+    const off = it.old ? Math.round((1 - it.p / it.old) * 100) : 0;
+    return `<button class="card" type="button" data-id="${it.id}">
+      <div class="thumb" style="background:${GRAD[it.cat]}"><span aria-hidden="true">${it.ico}</span>
+        <span class="tag">${it.city}</span>${off ? `<span class="off">−${off}%</span>` : ""}</div>
+      <div class="card-body">
+        <h3>${it.t}</h3>
+        <div class="meta"><span class="star">★ ${it.r}</span><span>${it.n.toLocaleString("ru-RU")} sharh</span><span>${it.dur}</span></div>
+        <div class="price"><small>${it.group ? "" : "dan"}</small><strong>${money(it.p)}</strong>${it.old ? `<s>${money(it.old)}</s>` : ""}</div>
+      </div></button>`;
+  }).join("");
+}
+
+/* ===== Batafsil va band qilish ===== */
+function openDetail(id) {
+  const it = byId(id);
+  const today = new Date();
+  const days = [...Array(14)].map((_, i) => { const d = new Date(today); d.setDate(d.getDate() + i + 1); return d; });
+  S.sel = { id, date: days[0].toISOString().slice(0, 10), adults: it.group ? 1 : 2, kids: 0 };
+  $("#dBody").innerHTML = `
+    <div class="d-thumb" style="background:${GRAD[it.cat]}" aria-hidden="true">${it.ico}</div>
+    <h2 class="d-title" id="dTitle">${it.t}</h2>
+    <div class="meta"><span class="star">★ ${it.r}</span><span>${it.n.toLocaleString("ru-RU")} sharh</span><span>${it.dur}</span><span>${it.city}</span></div>
+    <p class="d-desc">${it.d}</p>
+    <ul class="incl">${it.inc.map(x => `<li>${x}</li>`).join("")}</ul>
+    <div class="field-label">${it.cat === "visa" && it.nokids ? "Safar sanasi" : "Sanani tanlang"}</div>
+    <div class="dates" role="group" aria-label="Sana">${days.map(d => { const iso = d.toISOString().slice(0, 10);
+      return `<button class="date" type="button" data-date="${iso}" aria-pressed="${iso === S.sel.date}"><span>${WD[d.getDay()]}</span><b>${d.getDate()}</b><span>${MONTHS[d.getMonth()]}</span></button>`; }).join("")}</div>
+    ${it.group ? `<p class="d-desc" style="margin-top:14px">Narx butun guruh uchun belgilangan.</p>` : `
+    <div class="field-label">Mehmonlar</div>
+    <div class="counter"><div>Kattalar<small>${money(it.p)} / kishi</small></div>
+      <div class="step"><button type="button" data-step="adults" data-d="-1" aria-label="Kattalarni kamaytirish">−</button><output id="o_adults">${S.sel.adults}</output><button type="button" data-step="adults" data-d="1" aria-label="Kattalarni ko‘paytirish">+</button></div></div>
+    ${it.nokids ? "" : `<div class="counter"><div>Bolalar (3–11 yosh)<small>${money(kidPrice(it))} / kishi</small></div>
+      <div class="step"><button type="button" data-step="kids" data-d="-1" aria-label="Bolalarni kamaytirish">−</button><output id="o_kids">0</output><button type="button" data-step="kids" data-d="1" aria-label="Bolalarni ko‘paytirish">+</button></div></div>`}`}`;
+  updateDetailTotal();
+  openSheet("detail");
+}
+function updateDetailTotal() { $("#dTotal").textContent = money(lineTotal(S.sel)); }
+$("#dBody").addEventListener("click", e => {
+  const d = e.target.closest("[data-date]");
+  if (d) { S.sel.date = d.dataset.date; $("#dBody").querySelectorAll("[data-date]").forEach(b => b.setAttribute("aria-pressed", b === d)); return; }
+  const s = e.target.closest("[data-step]");
+  if (s) {
+    const k = s.dataset.step, min = k === "adults" ? 1 : 0;
+    S.sel[k] = Math.max(min, Math.min(20, S.sel[k] + Number(s.dataset.d)));
+    $("#o_" + k).textContent = S.sel[k]; updateDetailTotal(); haptic();
+  }
+});
+function addSelToCart() {
+  const same = S.cart.find(l => l.id === S.sel.id && l.date === S.sel.date);
+  if (same) { same.adults = S.sel.adults; same.kids = S.sel.kids; } else S.cart.push({ ...S.sel });
+  store.set("dv_cart", S.cart); renderBadge();
+}
+$("#addCart").onclick = () => { addSelToCart(); closeSheets(); toast("Savatga qo‘shildi"); };
+$("#bookNow").onclick = () => { addSelToCart(); closeSheets(); setTimeout(() => openCart(true), 120); };
+
+/* ===== Savat va buyurtma ===== */
+function cartTotal() { return S.cart.reduce((s, l) => s + lineTotal(l), 0); }
+function renderBadge() {
+  const n = S.cart.length;
+  ["#cartBadge", "#cartBadge2"].forEach(s => { const b = $(s); b.textContent = n; b.hidden = !n; });
+  syncTelegramButton();
+}
+function openCart(focusForm) {
+  const body = $("#cBody"), foot = $("#cFoot");
+  if (!S.cart.length) {
+    body.innerHTML = `<div class="done"><div class="big" aria-hidden="true">🧳</div><h3>Savat hozircha bo‘sh</h3><p>Katalogdan tur tanlang — sana va mehmonlar sonini belgilab, shu yerga qo‘shasiz.</p><button class="btn" type="button" id="toCat">Katalogga o‘tish</button></div>`;
+    foot.innerHTML = ""; $("#toCat").onclick = () => { closeSheets(); $("#katalog").scrollIntoView({ behavior: "smooth" }); };
+  } else {
+    const tgUser = TG && TG.initDataUnsafe && TG.initDataUnsafe.user;
+    body.innerHTML = S.cart.map((l, i) => { const it = byId(l.id);
+      return `<div class="c-item"><div class="c-ico" style="background:${GRAD[it.cat]}" aria-hidden="true">${it.ico}</div>
+        <div class="c-info"><b>${it.t}</b><span>${fmtDate(l.date)}${it.group ? "" : `, ${l.adults} katta${l.kids ? `, ${l.kids} bola` : ""}`}</span></div>
+        <div class="c-right"><strong>${money(lineTotal(l))}</strong><button type="button" data-rm="${i}">O‘chirish</button></div></div>`; }).join("") + `
+      <form class="form" id="orderForm" novalidate>
+        <label>Ism va familiya<input name="name" required autocomplete="name" placeholder="Aziz Karimov" value="${tgUser ? esc((tgUser.first_name || "") + " " + (tgUser.last_name || "")).trim() : ""}"></label>
+        <label>Telefon raqam<input name="phone" required type="tel" inputmode="tel" autocomplete="tel" placeholder="+998 90 123 45 67" pattern="^\\+?998[\\s-]?\\d{2}[\\s-]?\\d{3}[\\s-]?\\d{2}[\\s-]?\\d{2}$"></label>
+        <label>Telegram (ixtiyoriy)<input name="tg" placeholder="@username" value="${tgUser && tgUser.username ? "@" + esc(tgUser.username) : ""}"></label>
+        <div><div class="field-label" style="margin-top:4px">To‘lov usuli</div>
+          <div class="pays">${["Payme","Click","Uzum","Karta (Visa)"].map((p, i) => `<label><input type="radio" name="pay" value="${p}" ${i ? "" : "checked"}>${p}</label>`).join("")}</div></div>
+        <div class="err" id="formErr" role="alert"></div>
+      </form>`;
+    foot.innerHTML = `<div class="total-row"><span>Jami to‘lov</span><strong>${money(cartTotal())}</strong></div><button class="btn block" type="submit" form="orderForm">To‘lovga o‘tish</button>`;
+    $("#orderForm").addEventListener("submit", submitOrder);
+    if (focusForm) setTimeout(() => $("#orderForm [name=name]").focus({ preventScroll: true }), 300);
+  }
+  openSheet("cart");
+}
+$("#cBody").addEventListener("click", e => {
+  const b = e.target.closest("[data-rm]"); if (!b) return;
+  S.cart.splice(Number(b.dataset.rm), 1); store.set("dv_cart", S.cart); renderBadge(); openCart();
+});
+function submitOrder(e) {
+  e.preventDefault();
+  const f = e.target, err = $("#formErr");
+  if (!f.name.value.trim()) { err.textContent = "Ismingizni kiriting."; f.name.focus(); return; }
+  if (!f.phone.checkValidity()) { err.textContent = "Telefonni +998 90 123 45 67 ko‘rinishida kiriting."; f.phone.focus(); return; }
+  const order = {
+    no: "DV-" + Date.now().toString().slice(-6), at: new Date().toISOString(),
+    name: f.name.value.trim(), phone: f.phone.value.trim(), tg: f.tg.value.trim(), pay: f.pay.value,
+    items: S.cart.map(l => ({ ...l, title: byId(l.id).t, sum: lineTotal(l) })), totalUsd: cartTotal(), cur: S.cur
+  };
+  /* Bu yerda backendga yuboriladi: POST /api/orders → to‘lov havolasi (Payme/Click) qaytadi */
+  S.orders.unshift(order); store.set("dv_orders", S.orders);
+  S.cart = []; store.set("dv_cart", S.cart); renderBadge(); haptic("success");
+  $("#cBody").innerHTML = `<div class="done"><div class="big" aria-hidden="true">✅</div><h3>Buyurtma qabul qilindi</h3>
+    <p>Raqam: <b>${order.no}</b>. ${order.pay} orqali to‘lov havolasi ${order.tg || order.phone} ga yuboriladi. To‘lovdan keyin vaucher Telegramga keladi.</p>
+    <button class="btn" type="button" id="seeOrders">Buyurtmalarimni ko‘rish</button></div>`;
+  $("#cFoot").innerHTML = "";
+  $("#seeOrders").onclick = () => { closeSheets(); setTimeout(openOrders, 120); };
+}
+function openOrders() {
+  $("#oBody").innerHTML = S.orders.length ? S.orders.map(o => `<div class="order"><b><span>${o.no}</span><span>${money(o.totalUsd)}</span></b>
+    <span>${o.items.map(i => i.title + ", " + fmtDate(i.date)).join("; ")}</span><br><span>Holati: to‘lov kutilmoqda · ${o.pay}</span></div>`).join("")
+    : `<div class="done"><div class="big" aria-hidden="true">📋</div><h3>Buyurtmalar yo‘q</h3><p>Birinchi turingizni band qilganingizdan keyin u shu yerda ko‘rinadi.</p></div>`;
+  openSheet("orders");
+}
+
+/* ===== Oynalar ===== */
+let openId = null;
+function openSheet(id) {
+  document.querySelectorAll(".sheet.open").forEach(s => s.classList.remove("open"));
+  $("#" + id).classList.add("open"); $("#overlay").classList.add("open"); openId = id;
+  document.body.style.overflow = "hidden";
+  setTimeout(() => { const c = $("#" + id + " [data-close]"); if (c) c.focus({ preventScroll: true }); }, 50);
+  if (TG && TG.BackButton) TG.BackButton.show();
+  syncTelegramButton();
+}
+function closeSheets() {
+  document.querySelectorAll(".sheet.open").forEach(s => s.classList.remove("open"));
+  $("#overlay").classList.remove("open"); openId = null; document.body.style.overflow = "";
+  if (TG && TG.BackButton) TG.BackButton.hide();
+  syncTelegramButton();
+}
+document.addEventListener("click", e => { if (e.target.closest("[data-close]") || e.target.id === "overlay") closeSheets(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && openId) closeSheets(); });
+
+let toastEl;
+function toast(msg) {
+  if (!toastEl) { toastEl = document.createElement("div"); toastEl.setAttribute("role", "status");
+    toastEl.style.cssText = "position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:12px;font-weight:700;z-index:70;transition:opacity .2s"; document.body.appendChild(toastEl); }
+  toastEl.textContent = msg; toastEl.style.opacity = 1; clearTimeout(toastEl._t); toastEl._t = setTimeout(() => toastEl.style.opacity = 0, 1800);
+}
+
+/* ===== Hodisalar ===== */
+$("#tabs").addEventListener("click", e => { const b = e.target.closest("[data-cat]"); if (!b) return; S.cat = b.dataset.cat; renderTabs(); renderGrid(); });
+$("#quick").addEventListener("click", e => { const b = e.target.closest("[data-q]"); if (!b) return; setQuery(b.dataset.q); });
+$("#grid").addEventListener("click", e => { const c = e.target.closest(".card"); if (c) openDetail(Number(c.dataset.id)); });
+$("#sort").onchange = e => { S.sort = e.target.value; renderGrid(); };
+$("#q1").addEventListener("input", e => { S.q = e.target.value; $("#q2").value = S.q; renderGrid(); });
+$("#heroForm").addEventListener("submit", e => { e.preventDefault(); setQuery($("#q2").value); });
+function setQuery(q) { S.q = q; $("#q1").value = $("#q2").value = q; S.cat = "all"; renderTabs(); renderGrid(); $("#katalog").scrollIntoView({ behavior: "smooth" }); }
+$("#cur").value = S.cur;
+$("#cur").onchange = e => { S.cur = e.target.value; store.set("dv_cur", S.cur); renderGrid(); if (openId === "detail") openDetail(S.sel.id); };
+$("#cartBtn").onclick = () => openCart();
+$("#ordersBtn").onclick = openOrders;
+document.querySelector(".bnav").addEventListener("click", e => {
+  const b = e.target.closest("[data-nav]"); if (!b) return;
+  document.querySelectorAll(".bnav button").forEach(x => x.classList.toggle("on", x === b));
+  const n = b.dataset.nav;
+  if (n === "home") { closeSheets(); window.scrollTo({ top: 0, behavior: "smooth" }); }
+  if (n === "search") { closeSheets(); $("#q2").focus(); $("#heroTitle").scrollIntoView({ behavior: "smooth" }); }
+  if (n === "cart") openCart();
+  if (n === "orders") openOrders();
+});
+
+/* ===== Telegram Mini App integratsiyasi ===== */
+const TG = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData ?window.Telegram.WebApp : null;
+function haptic(type) { try { if (TG && TG.HapticFeedback) type ? TG.HapticFeedback.notificationOccurred(type) : TG.HapticFeedback.impactOccurred("light"); } catch (e) {} }
+function syncTelegramButton() {
+  if (!TG || !TG.MainButton) return;
+  if (S.cart.length && !openId) { TG.MainButton.setText("Savat · " + money(cartTotal())); TG.MainButton.show(); }
+  else TG.MainButton.hide();
+}
+if (TG) {
+  TG.ready(); TG.expand();
+  document.documentElement.setAttribute("data-theme", TG.colorScheme === "dark" ? "dark" : "light");
+  TG.onEvent && TG.onEvent("themeChanged", () => document.documentElement.setAttribute("data-theme", TG.colorScheme === "dark" ? "dark" : "light"));
+  TG.MainButton.onClick(() => openCart(true));
+  TG.BackButton.onClick(closeSheets);
+  $("#tgLink").closest(".tg-band").style.display = "none";
+  const start = TG.initDataUnsafe && TG.initDataUnsafe.start_param; // masalan t.me/duvayvamen_bot?startapp=2
+  if (start && byId(Number(start))) setTimeout(() => openDetail(Number(start)), 300);
+}
+
+renderTabs(); renderGrid(); renderBadge();
+</script>
+</body>
+</html>

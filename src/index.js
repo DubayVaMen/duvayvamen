@@ -1,4 +1,4 @@
-// duvayvamen — Cloudflare Workers API
+// duvayvamen — sayt public/ dan beriladi, bu Worker faqat /api/* ni boshqaradi
 
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data), {
@@ -10,11 +10,7 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
-    if (url.pathname === "/") {
-      return json({ name: "duvayvamen", status: "ok" });
-    }
-
-    if (url.pathname === "/health") {
+    if (url.pathname === "/api/health") {
       return json({ ok: true, time: new Date().toISOString() });
     }
 

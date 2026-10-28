@@ -1,10 +1,10 @@
 # duvayvamen
 
-Cloudflare Workers'da ishlaydigan API. `main` branchga har bir push GitHub Actions orqali avtomatik deploy qilinadi.
+Dubay turlari sayti (duvayvamen.uz), Cloudflare Workers'da. `main` branchga har bir push GitHub Actions orqali avtomatik deploy qilinadi.
 
 ## Endpointlar
-- `GET /` — loyiha holati
-- `GET /health` — tekshiruv
+- `/` — sayt (`public/index.html`)
+- `GET /api/health` — tekshiruv
 
 ## Bir martalik sozlash
 1. GitHub'da `duvayvamen` nomli bo'sh repo oching va shu kodni push qiling.
