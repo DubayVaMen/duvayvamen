@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <title>dubayvamen — admin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -45,6 +46,7 @@ label.f small{font-weight:500;color:var(--muted)}
 .login h1{font-family:var(--display);font-size:22px;margin:0}
 .login p{margin:0;color:var(--muted)}
 .err{color:var(--sale);font-weight:600;min-height:1.2em;font-size:14px}
+.tg-btn{min-height:44px;display:flex;align-items:center}
 
 /* shell */
 .top{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
@@ -151,12 +153,11 @@ main{max-width:1280px;margin:0 auto;padding:20px}
 
 <!-- Kirish -->
 <div class="login" id="loginView" hidden>
-  <form id="loginForm">
+  <form id="loginForm" onsubmit="return false">
     <h1>dubayvamen admin</h1>
-    <p>Davom etish uchun parolni kiriting.</p>
-    <label class="f">Parol<input type="password" name="password" autocomplete="current-password" required autofocus></label>
+    <p>Telegram akkauntingiz orqali kiring. Panel faqat ruxsat berilgan akkauntlarda ochiladi.</p>
+    <div id="tgBtn" class="tg-btn"><span class="hint">Telegram tugmasi yuklanmoqda…</span></div>
     <div class="err" id="loginErr" role="alert"></div>
-    <button class="btn" type="submit">Kirish</button>
   </form>
 </div>
 
@@ -252,25 +253,44 @@ async function api(path, opts = {}) {
   return j;
 }
 
-/* ===== Kirish ===== */
-$("#loginForm").addEventListener("submit", async e => {
-  e.preventDefault();
+/* ===== Telegram orqali kirish ===== */
+async function tgLogin(payload) {
   const err = $("#loginErr"); err.textContent = "";
   try {
-    const r = await fetch("/api/admin/login", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ password: e.target.password.value }) });
+    const r = await fetch("/api/admin/login", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
     const j = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(j.error || "Kirib bo‘lmadi");
-    TOKEN = j.token; store.set("dv_admin", TOKEN); e.target.reset(); start();
+    TOKEN = j.token; store.set("dv_admin", TOKEN); start();
+    if (j.name) toast("Xush kelibsiz, " + j.name);
   } catch (x) { err.textContent = x.message; }
-});
-function logout() { TOKEN = null; store.set("dv_admin", null); $("#app").hidden = true; $("#loginView").hidden = false; }
+}
+window.onTelegramAuth = user => tgLogin({ user });
+let widgetShown = false;
+async function showLogin() {
+  $("#app").hidden = true; $("#loginView").hidden = false;
+  // Bot ichida mini ilova sifatida ochilgan bo‘lsa — tugmasiz, avtomatik kiramiz
+  const wa = window.Telegram && Telegram.WebApp;
+  if (wa && wa.initData && !widgetShown) { widgetShown = true; wa.ready(); wa.expand(); return tgLogin({ initData: wa.initData }); }
+  if (widgetShown) return;
+  widgetShown = true;
+  const { bot } = await (await fetch("/api/admin/config")).json().catch(() => ({}));
+  const box = $("#tgBtn");
+  if (!bot) { box.innerHTML = `<span class="err">Bot sozlanmagan (BOT_USERNAME).</span>`; return; }
+  box.innerHTML = "";
+  const s = document.createElement("script");
+  s.async = true; s.src = "https://telegram.org/js/telegram-widget.js?22";
+  s.setAttribute("data-telegram-login", bot); s.setAttribute("data-size", "large"); s.setAttribute("data-radius", "12");
+  s.setAttribute("data-onauth", "onTelegramAuth(user)"); s.setAttribute("data-request-access", "write");
+  box.appendChild(s);
+}
+function logout() { TOKEN = null; store.set("dv_admin", null); showLogin(); }
 $("#logout").onclick = () => { if (!dirty || confirm("Saqlanmagan o‘zgarishlar bor. Baribir chiqasizmi?")) logout(); };
 
 async function start() {
   if (!TOKEN) return logout();
   try {
     DATA = await api("/api/admin/data");
-  } catch (x) { if (TOKEN) toast(x.message, true); return; }
+  } catch (x) { if (TOKEN) { showLogin(); $("#loginErr").textContent = x.message; } return; }
   $("#loginView").hidden = true; $("#app").hidden = false;
   renderList(); renderEditor(); fillSettings(); loadOrders();
 }

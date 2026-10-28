@@ -21,6 +21,8 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           secrets: |
-            ADMIN_PASSWORD
+            TELEGRAM_BOT_TOKEN
+            ADMIN_TG_IDS
         env:
-          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          ADMIN_TG_IDS: ${{ secrets.ADMIN_TG_IDS }}

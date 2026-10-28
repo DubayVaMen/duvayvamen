@@ -15,9 +15,12 @@ const json = (data, status = 200, headers = {}) =>
 const enc = new TextEncoder();
 const b64url = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 
+const hex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
+const keyOf = (raw) => crypto.subtle.importKey("raw", raw, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+const hmacRaw = async (keyBytes, msg) => crypto.subtle.sign("HMAC", await keyOf(keyBytes), enc.encode(msg));
+
 async function hmac(secret, msg) {
-  const key = await crypto.subtle.importKey("raw", enc.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
-  return b64url(await crypto.subtle.sign("HMAC", key, enc.encode(msg)));
+  return b64url(await hmacRaw(enc.encode(secret), msg));
 }
 
 function safeEqual(a, b) {
@@ -27,18 +30,71 @@ function safeEqual(a, b) {
   return r === 0;
 }
 
-// Token: "<amal qilish muddati>.<imzo>", 30 kun amal qiladi
+// ===== Telegram orqali kirish =====
+// Adminlar: ADMIN_TG_IDS = "123456789,987654321" (Telegram foydalanuvchi ID lari)
+const adminIds = (env) => String(env.ADMIN_TG_IDS || "").split(/[\s,]+/).filter(Boolean);
+
+// Telegram Login tugmasidan kelgan ma’lumot: https://core.telegram.org/widgets/login#checking-authorization
+async function checkLoginWidget(env, u) {
+  const { hash, ...fields } = u;
+  if (!hash) return null;
+  const check = Object.keys(fields).filter((k) => fields[k] != null).sort().map((k) => `${k}=${fields[k]}`).join("\n");
+  const secret = await crypto.subtle.digest("SHA-256", enc.encode(env.TELEGRAM_BOT_TOKEN));
+  if (!safeEqual(hex(await hmacRaw(secret, check)), String(hash))) return null;
+  if (Date.now() / 1000 - Number(fields.auth_date) > 86400) return null;
+  return { id: String(fields.id), name: [fields.first_name, fields.last_name].filter(Boolean).join(" ") };
+}
+
+// Bot ichidagi mini ilovadan (Telegram.WebApp.initData): https://core.telegram.org/bots/webapps#validating-data-received-via-the-mini-app
+async function checkMiniApp(env, initData) {
+  const p = new URLSearchParams(initData);
+  const hash = p.get("hash");
+  if (!hash) return null;
+  p.delete("hash");
+  const check = [...p.entries()].map(([k, v]) => `${k}=${v}`).sort().join("\n");
+  const secret = await hmacRaw(enc.encode("WebAppData"), env.TELEGRAM_BOT_TOKEN);
+  if (!safeEqual(hex(await hmacRaw(secret, check)), hash)) return null;
+  if (Date.now() / 1000 - Number(p.get("auth_date")) > 86400) return null;
+  const user = JSON.parse(p.get("user") || "{}");
+  return { id: String(user.id), name: [user.first_name, user.last_name].filter(Boolean).join(" ") };
+}
+
+// Sessiya tokeni: "<muddat>.<telegram id>.<imzo>", 30 kun amal qiladi.
+// ID ro‘yxatdan olib tashlansa, token ham darhol ishlamay qoladi.
 const TOKEN_DAYS = 30;
-async function makeToken(env) {
+const sessionKey = (env) => "session:" + env.TELEGRAM_BOT_TOKEN;
+async function makeToken(env, uid) {
   const exp = Date.now() + TOKEN_DAYS * 864e5;
-  return exp + "." + (await hmac(env.ADMIN_PASSWORD, "admin:" + exp));
+  return `${exp}.${uid}.` + (await hmac(sessionKey(env), `admin:${exp}:${uid}`));
 }
 async function isAdmin(request, env) {
-  if (!env.ADMIN_PASSWORD) return false;
+  if (!env.TELEGRAM_BOT_TOKEN) return false;
   const tok = (request.headers.get("authorization") || "").replace(/^Bearer /, "");
-  const [exp, sig] = tok.split(".");
-  if (!exp || !sig || Number(exp) < Date.now()) return false;
-  return safeEqual(sig, await hmac(env.ADMIN_PASSWORD, "admin:" + exp));
+  const [exp, uid, sig] = tok.split(".");
+  if (!exp || !uid || !sig || Number(exp) < Date.now() || !adminIds(env).includes(uid)) return false;
+  return safeEqual(sig, await hmac(sessionKey(env), `admin:${exp}:${uid}`));
+}
+
+// Yangi buyurtma haqida adminlarga Telegram xabari
+async function notifyAdmins(env, o) {
+  if (!env.TELEGRAM_BOT_TOKEN) return;
+  const e = (s) => String(s ?? "").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+  const lines = [
+    `🆕 <b>Yangi buyurtma ${e(o.no)}</b>`,
+    `👤 ${e(o.name)}`,
+    `📞 ${e(o.phone)}${o.tg ? `  ·  ${e(o.tg)}` : ""}`,
+    "",
+    ...o.items.map((i) => `• ${e(i.title)} — ${e(i.date)}${i.adults ? `, ${i.adults} katta` : ""}${i.kids ? `, ${i.kids} bola` : ""} · $${Math.round(i.sum)}`),
+    "",
+    `💰 Jami: <b>$${Math.round(o.totalUsd)}</b>`,
+  ];
+  await Promise.all(adminIds(env).map((chat_id) =>
+    fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ chat_id, text: lines.join("\n"), parse_mode: "HTML" }),
+    }).catch(() => {})
+  ));
 }
 
 async function getData(env) {
@@ -71,7 +127,7 @@ function cleanData(d) {
   return { settings, tours };
 }
 
-async function handle(request, env) {
+async function handle(request, env, ctx) {
   const url = new URL(request.url);
   const path = url.pathname;
   const method = request.method;
@@ -115,20 +171,24 @@ async function handle(request, env) {
     };
     const key = "order:" + (9e15 - Date.now()).toString().padStart(16, "0") + ":" + order.no; // yangilari birinchi
     await env.DB.put(key, JSON.stringify(order));
+    ctx.waitUntil(notifyAdmins(env, order));
     return json({ ok: true, no: order.no });
   }
 
   // ===== Admin =====
+  if (path === "/api/admin/config" && method === "GET") {
+    return json({ bot: env.BOT_USERNAME || "" });
+  }
   if (path === "/api/admin/login" && method === "POST") {
-    if (!env.ADMIN_PASSWORD) return json({ error: "ADMIN_PASSWORD sozlanmagan" }, 500);
+    if (!env.TELEGRAM_BOT_TOKEN) return json({ error: "TELEGRAM_BOT_TOKEN sozlanmagan" }, 500);
     let body = {};
     try { body = await request.json(); } catch {}
-    const ok = safeEqual(await hmac("cmp", str(body.password, 200)), await hmac("cmp", env.ADMIN_PASSWORD));
-    if (!ok) {
-      await new Promise((r) => setTimeout(r, 800));
-      return json({ error: "Parol noto‘g‘ri" }, 401);
+    const who = body.initData ? await checkMiniApp(env, str(body.initData, 4096)) : await checkLoginWidget(env, body.user || {});
+    if (!who) return json({ error: "Telegram ma’lumoti tasdiqlanmadi. Qayta urinib ko‘ring." }, 401);
+    if (!adminIds(env).includes(who.id)) {
+      return json({ error: `Bu Telegram akkauntga admin panel ochilmagan (ID: ${who.id}).`, id: who.id }, 403);
     }
-    return json({ token: await makeToken(env) });
+    return json({ token: await makeToken(env, who.id), name: who.name });
   }
 
   if (path.startsWith("/api/admin/")) {
@@ -176,9 +236,9 @@ async function handle(request, env) {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     try {
-      return await handle(request, env);
+      return await handle(request, env, ctx);
     } catch (e) {
       return json({ error: "Server xatosi" }, 500);
     }

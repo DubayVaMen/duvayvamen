@@ -7,6 +7,8 @@
     "directory": "public",
     "run_worker_first": ["/api/*"]
   },
+  // Telegram bot nomi (kirish tugmasi uchun). Token va admin ID lar GitHub secret orqali keladi.
+  "vars": { "BOT_USERNAME": "dubayvamenbot" },
   // Turlar, buyurtmalar va rasmlar shu yerda. ID birinchi deployda avtomatik yaratiladi.
   "kv_namespaces": [{ "binding": "DB" }],
   "observability": { "enabled": true }
