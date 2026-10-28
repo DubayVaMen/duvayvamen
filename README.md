@@ -1,6 +1,6 @@
-# duvayvamen
+# dubayvamen
 
-Dubay turlari sayti (duvayvamen.uz), Cloudflare Workers'da. `main` branchga har bir push GitHub Actions orqali avtomatik deploy qilinadi.
+Dubay turlari sayti (dubayvamen.uz), Cloudflare Workers'da. `main` branchga har bir push GitHub Actions orqali avtomatik deploy qilinadi.
 
 ## Endpointlar
 - `/` — sayt (`public/index.html`)
@@ -13,7 +13,7 @@ Dubay turlari sayti (duvayvamen.uz), Cloudflare Workers'da. `main` branchga har 
 4. GitHub repo → Settings → Secrets and variables → Actions:
    - `CLOUDFLARE_API_TOKEN` — 2-qadamdagi token
    - `CLOUDFLARE_ACCOUNT_ID` — 3-qadamdagi ID
-5. Tayyor: endi `main` ga push qilinsa, Worker `https://duvayvamen.<subdomain>.workers.dev` manzilida yangilanadi.
+5. Tayyor: endi `main` ga push qilinsa, Worker `https://dubayvamen.<subdomain>.workers.dev` manzilida yangilanadi.
 
 ## Lokal ishga tushirish
 Node.js 22+ kerak.
