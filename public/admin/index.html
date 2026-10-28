@@ -526,7 +526,8 @@ $("#orders").addEventListener("change", async e => {
   const card = e.target.closest("[data-key]"); if (!card || e.target.tagName !== "SELECT") return;
   try {
     const o = await api("/api/admin/orders/" + encodeURIComponent(card.dataset.key), { method: "PATCH", body: JSON.stringify({ status: e.target.value }) });
-    ORDERS = ORDERS.map(x => x.key === card.dataset.key ? { ...x, ...o } : x); renderOrders(); toast("Holat yangilandi");
+    ORDERS = ORDERS.map(x => x.key === card.dataset.key ? { ...x, ...o } : x); renderOrders();
+    toast(["confirmed", "cancelled"].includes(e.target.value) && o.tgId ? "Holat yangilandi — mijozga xabar yuborildi" : "Holat yangilandi");
   } catch (x) { toast(x.message, true); }
 });
 $("#orders").addEventListener("click", async e => {

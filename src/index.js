@@ -112,6 +112,7 @@ function appButtons(origin, isAdminUser) {
 }
 
 async function handleBotUpdate(env, origin, update) {
+  if (update.callback_query) return handleOrderButton(env, update.callback_query);
   const msg = update.message;
   if (!msg || !msg.chat || msg.chat.type !== "private") return;
   const isAdminUser = adminIds(env).includes(String(msg.from && msg.from.id));
@@ -131,11 +132,38 @@ async function handleBotUpdate(env, origin, update) {
   }
 }
 
+// Admin buyurtma xabaridagi tugmani bosdi
+async function handleOrderButton(env, cq) {
+  const answer = (text) => tgApi(env, "answerCallbackQuery", { callback_query_id: cq.id, text });
+  if (!adminIds(env).includes(String(cq.from && cq.from.id))) return answer("Ruxsat yo‘q");
+  const [act, key] = String(cq.data || "").split("|");
+  const status = { c: "confirmed", x: "cancelled", d: "done" }[act];
+  if (!status || !key || !key.startsWith("order:")) return answer("Eskirgan tugma");
+  const o = await setOrderStatus(env, key, status);
+  if (!o) return answer("Buyurtma topilmadi (o‘chirilgan bo‘lishi mumkin)");
+  // Xabar matnining boshiga holatni yozamiz va tugmalarni yangilaymiz
+  const m = cq.message;
+  if (m) {
+    const who = [cq.from.first_name, cq.from.username && "@" + cq.from.username].filter(Boolean).join(" ");
+    const text = String(m.text || "");
+    const old = (text.match(/^Holat: .*\n\n/) || [""])[0];
+    const head = `Holat: ${STATUS_LABEL[status]} — ${who}\n\n`;
+    // qalin yozuv va havolalar saqlanib qolishi uchun formatlashni siljitamiz
+    const entities = (m.entities || []).filter((x) => x.offset >= old.length).map((x) => ({ ...x, offset: x.offset - old.length + head.length }));
+    entities.unshift({ type: "bold", offset: 0, length: head.length - 2 });
+    await tgApi(env, "editMessageText", {
+      chat_id: m.chat.id, message_id: m.message_id, text: head + text.slice(old.length), entities,
+      reply_markup: orderButtons(key, status), disable_web_page_preview: true,
+    });
+  }
+  return answer(STATUS_LABEL[status] + (status === "confirmed" || status === "cancelled" ? " — mijozga xabar yuborildi" : ""));
+}
+
 // Admin paneldagi “Botni sozlash” tugmasi: webhook, menyu tugmasi va buyruqlar
 async function setupBot(env, origin) {
   const steps = {};
   steps.webhook = await tgApi(env, "setWebhook", {
-    url: origin + "/api/tg/webhook", secret_token: await webhookSecret(env), allowed_updates: ["message"], drop_pending_updates: true,
+    url: origin + "/api/tg/webhook", secret_token: await webhookSecret(env), allowed_updates: ["message", "callback_query"], drop_pending_updates: true,
   });
   steps.menu = await tgApi(env, "setChatMenuButton", { menu_button: { type: "web_app", text: "Ochish", web_app: { url: origin + "/" } } });
   steps.commands = await tgApi(env, "setMyCommands", { commands: [{ command: "start", description: "Turlar va biletlarni ochish" }] });
@@ -143,10 +171,39 @@ async function setupBot(env, origin) {
   return steps;
 }
 
-// Yangi buyurtma haqida adminlarga, mijozga esa tasdiq xabari
-async function notifyOrder(env, o) {
+// ===== Buyurtma holati: bot tugmalari va admin panel uchun umumiy =====
+const esc = (s) => String(s ?? "").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+const STATUS_LABEL = { new: "🆕 Yangi", confirmed: "✅ Tasdiqlandi", done: "✔️ Bajarildi", cancelled: "❌ Bekor qilindi" };
+
+// callback_data: "<amal>|<KV kalit>" — amal: c = tasdiqlash, x = bekor qilish, d = bajarildi
+function orderButtons(key, status) {
+  const b = (text, act) => ({ text, callback_data: act + "|" + key });
+  const rows = { new: [[b("✅ Tasdiqlash", "c"), b("❌ Bekor qilish", "x")]],
+    confirmed: [[b("✔️ Bajarildi", "d"), b("❌ Bekor qilish", "x")]],
+    cancelled: [[b("↩️ Qayta tasdiqlash", "c")]],
+    done: [] }[status] || [];
+  return { inline_keyboard: rows };
+}
+
+// Holatni o‘zgartiradi; tasdiqlansa yoki bekor qilinsa, mijozga xabar yuboradi
+async function setOrderStatus(env, key, status) {
+  const o = await env.DB.get(key, "json");
+  if (!o) return null;
+  const prev = o.status;
+  o.status = status;
+  await env.DB.put(key, JSON.stringify(o));
+  if (prev !== status && o.tgId && env.TELEGRAM_BOT_TOKEN) {
+    const items = (o.items || []).map((i) => `• ${esc(i.title)} — ${esc(i.date)}`).join("\n");
+    if (status === "confirmed") await tgSend(env, o.tgId, `✅ <b>Buyurtmangiz tasdiqlandi</b> (${esc(o.no)})\n\n${items}\n\nVaucher va tafsilotlar shu chatga yuboriladi. Savollar bo‘lsa, shu yerga yozing.`);
+    if (status === "cancelled") await tgSend(env, o.tgId, `❌ <b>Buyurtmangiz bekor qilindi</b> (${esc(o.no)})\n\n${items}\n\nSavollar bo‘lsa, bizga yozing — boshqa sana yoki turni tanlashga yordam beramiz.`);
+  }
+  return o;
+}
+
+// Yangi buyurtma haqida adminlarga (tugmalar bilan), mijozga esa qabul xabari
+async function notifyOrder(env, o, key) {
   if (!env.TELEGRAM_BOT_TOKEN) return;
-  const e = (s) => String(s ?? "").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+  const e = esc;
   const items = o.items.map((i) => `• ${e(i.title)} — ${e(i.date)}${i.adults ? `, ${i.adults} katta` : ""}${i.kids ? `, ${i.kids} bola` : ""} · $${Math.round(i.sum)}`);
   const admin = [
     `🆕 <b>Yangi buyurtma ${e(o.no)}</b>`,
@@ -156,10 +213,10 @@ async function notifyOrder(env, o) {
     "", ...items, "",
     `💰 Jami: <b>$${Math.round(o.totalUsd)}</b>`,
   ];
-  await Promise.all(adminIds(env).map((chat_id) => tgSend(env, chat_id, admin.join("\n"))));
+  await Promise.all(adminIds(env).map((chat_id) => tgSend(env, chat_id, admin.join("\n"), { reply_markup: orderButtons(key, "new") })));
   // Mijoz kirishda bot xabar yuborishiga ruxsat bergan
   await tgSend(env, o.tgId, [
-    `✅ <b>Buyurtmangiz qabul qilindi</b> (${e(o.no)})`, "", ...items, "",
+    `📝 <b>Buyurtmangiz qabul qilindi</b> (${e(o.no)})`, "", ...items, "",
     `Jami: <b>$${Math.round(o.totalUsd)}</b>`,
     "Tez orada siz bilan bog‘lanib, buyurtmani tasdiqlaymiz.",
   ].join("\n"));
@@ -257,7 +314,7 @@ async function handle(request, env, ctx) {
     const key = "order:" + (9e15 - Date.now()).toString().padStart(16, "0") + ":" + order.no; // yangilari birinchi
     await env.DB.put(key, JSON.stringify(order));
     await env.DB.put(rlKey, String(used + 1), { expirationTtl: 3600 });
-    ctx.waitUntil(notifyOrder(env, order));
+    ctx.waitUntil(notifyOrder(env, order, key));
     return json({ ok: true, no: order.no });
   }
 
@@ -322,12 +379,12 @@ async function handle(request, env, ctx) {
       const key = om[1];
       if (method === "DELETE") { await env.DB.delete(key); return json({ ok: true }); }
       if (method === "PATCH") {
-        const o = await env.DB.get(key, "json");
-        if (!o) return json({ error: "Buyurtma topilmadi" }, 404);
         const { status, note } = await request.json();
-        if (["new", "confirmed", "done", "cancelled"].includes(status)) o.status = status;
-        if (note !== undefined) o.note = str(note, 1000);
-        await env.DB.put(key, JSON.stringify(o));
+        let o = await env.DB.get(key, "json");
+        if (!o) return json({ error: "Buyurtma topilmadi" }, 404);
+        if (note !== undefined) { o.note = str(note, 1000); await env.DB.put(key, JSON.stringify(o)); }
+        // holat o‘zgarsa, mijozga ham xabar boradi (bot tugmalari bilan bir xil)
+        if (["new", "confirmed", "done", "cancelled"].includes(status)) o = await setOrderStatus(env, key, status);
         return json(o);
       }
     }
