@@ -206,9 +206,11 @@ main{max-width:1280px;margin:0 auto;padding:20px}
         <h2>Sozlamalar</h2>
         <p class="hint" style="margin:0">Bu ma’lumotlar saytning pastki qismida va Telegram tugmasida ko‘rinadi.</p>
         <label class="f">Aloqa telefoni<input name="phone" placeholder="+971 55 376 0330"></label>
-        <label class="f">Telegram havolasi<input name="telegram" placeholder="https://t.me/dubayvamenbot"></label>
-        <label class="f">Instagram havolasi <small>bo‘sh qoldirsangiz saytda ko‘rinmaydi</small><input name="instagram" placeholder="https://instagram.com/…"></label>
-        <label class="f">Email<input name="email" type="email" placeholder="info@dubayvamen.uz"></label>
+        <label class="f">Telegram bot havolasi <small>“Telegramda ham ochiladi” tugmasi uchun</small><input name="telegram" placeholder="https://t.me/dubayvamenbot"></label>
+        <div class="sec-t">Bizning sahifalar</div>
+        <p class="hint" style="margin:0">Saytning pastida “Bizning sahifalar” bo‘limida chiqadi. Bo‘sh qoldirilgani ko‘rinmaydi.</p>
+        <label class="f">Telegram kanal havolasi<input name="channel" placeholder="https://t.me/kanal_nomi"></label>
+        <label class="f">Instagram havolasi<input name="instagram" placeholder="https://instagram.com/sahifa_nomi"></label>
         <label class="f">1 USD necha AED <small>AED narxlarni hisoblash uchun</small><input name="aed" type="number" step="0.0001" min="0.1"></label>
         <div><button class="btn" type="submit">Saqlash</button></div>
       </form>
@@ -534,12 +536,12 @@ $("#orders").addEventListener("click", async e => {
 /* ===== Sozlamalar ===== */
 function fillSettings() {
   const f = $("#setForm"), s = DATA.settings;
-  ["phone", "telegram", "instagram", "email", "aed"].forEach(k => f[k].value = s[k] ?? "");
+  ["phone", "telegram", "channel", "instagram", "aed"].forEach(k => f[k].value = s[k] ?? "");
 }
 $("#setForm").addEventListener("submit", async e => {
   e.preventDefault();
   const f = e.target;
-  const settings = { phone: f.phone.value, telegram: f.telegram.value, instagram: f.instagram.value, email: f.email.value, aed: Number(f.aed.value) };
+  const settings = { ...DATA.settings, phone: f.phone.value, telegram: f.telegram.value, channel: f.channel.value, instagram: f.instagram.value, aed: Number(f.aed.value) };
   try {
     DATA = await api("/api/admin/data", { method: "PUT", body: JSON.stringify({ settings, tours: DATA.tours }) });
     fillSettings(); toast("Sozlamalar saqlandi");

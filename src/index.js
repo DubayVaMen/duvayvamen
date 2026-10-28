@@ -132,7 +132,7 @@ const num = (v, min = 0, max = 1e7) => Math.min(max, Math.max(min, Number(v) || 
 function cleanData(d) {
   const s = d.settings || {};
   const settings = {
-    phone: str(s.phone, 40), telegram: str(s.telegram, 200), instagram: str(s.instagram, 200),
+    phone: str(s.phone, 40), telegram: str(s.telegram, 200), channel: str(s.channel, 200), instagram: str(s.instagram, 200),
     email: str(s.email, 120), aed: num(s.aed, 0.1, 100) || 3.6725,
   };
   const ids = new Set();

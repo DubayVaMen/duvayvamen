@@ -3,6 +3,7 @@ export default {
   "settings": {
     "phone": "+971 55 376 0330",
     "telegram": "https://t.me/dubayvamenbot",
+    "channel": "",
     "instagram": "",
     "email": "info@dubayvamen.uz",
     "aed": 3.6725
