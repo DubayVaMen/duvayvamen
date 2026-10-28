@@ -9,7 +9,10 @@
   },
   // Telegram bot nomi (kirish tugmasi uchun). Token va admin ID lar GitHub secret orqali keladi.
   "vars": { "BOT_USERNAME": "dubayvamenbot" },
-  // Turlar, buyurtmalar va rasmlar shu yerda. ID birinchi deployda avtomatik yaratiladi.
+  // Turlar va rasmlar shu yerda. ID birinchi deployda avtomatik yaratiladi.
   "kv_namespaces": [{ "binding": "DB" }],
+  // Buyurtmalar uchun bir zumda mos keladigan xotira (KV dan farqli ravishda kechikmaydi)
+  "durable_objects": { "bindings": [{ "name": "ORDERS", "class_name": "OrdersStore" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["OrdersStore"] }],
   "observability": { "enabled": true }
 }

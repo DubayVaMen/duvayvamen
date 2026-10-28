@@ -491,11 +491,17 @@ function dup() {
 addEventListener("beforeunload", e => { if (dirty) { e.preventDefault(); e.returnValue = ""; } });
 
 /* ===== Buyurtmalar ===== */
-async function loadOrders() {
-  try { ORDERS = await api("/api/admin/orders"); } catch (x) { return toast(x.message, true); }
-  renderOrders();
+async function loadOrders(silent) {
+  let fresh;
+  try { fresh = await api("/api/admin/orders"); } catch (x) { return silent ? null : toast(x.message, true); }
+  // fonda yangilanganda, o‘zgarish bo‘lmasa qayta chizmaymiz (ochiq ro‘yxat yopilib qolmasin)
+  if (silent && JSON.stringify(fresh) === JSON.stringify(ORDERS)) return;
+  ORDERS = fresh; renderOrders();
 }
-$("#reloadOrders").onclick = loadOrders;
+$("#reloadOrders").onclick = () => loadOrders();
+// Bot orqali tasdiqlangan yoki yangi kelgan buyurtmalar o‘zi ko‘rinib tursin
+setInterval(() => { if (TOKEN && !$("#app").hidden && !document.hidden) loadOrders(true); }, 15000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden && TOKEN && !$("#app").hidden) loadOrders(true); });
 const fmtDate = iso => { try { return new Date(iso).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }); } catch (e) { return iso; } };
 function renderOrders() {
   const n = ORDERS.filter(o => o.status === "new").length;

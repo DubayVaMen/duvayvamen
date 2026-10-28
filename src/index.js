@@ -1,10 +1,45 @@
 // dubayvamen — sayt public/ dan beriladi, bu Worker faqat /api/* ni boshqaradi.
-// Ma’lumotlar Cloudflare KV (env.DB) da saqlanadi:
+// Cloudflare KV (env.DB):
 //   "data"          — sozlamalar va turlar ro‘yxati (admin paneldan tahrirlanadi)
-//   "order:<vaqt>"  — mijozlar buyurtmalari
 //   "img:<id>"      — admin yuklagan rasmlar
+// Buyurtmalar — OrdersStore Durable Object (env.ORDERS): yozilgan zahoti hamma joyda ko‘rinadi.
+// KV da o‘zgarish boshqa joylarga 60 soniyagacha kech yetadi, buyurtma holati uchun bu yaramaydi.
 
+import { DurableObject } from "cloudflare:workers";
 import SEED from "./seed.js";
+
+export class OrdersStore extends DurableObject {
+  // Avval KV da saqlangan buyurtmalarni bir marta ko‘chirib olamiz
+  async migrate() {
+    if (await this.ctx.storage.get("migrated")) return;
+    const list = await this.env.DB.list({ prefix: "order:", limit: 1000 });
+    for (const k of list.keys) {
+      const o = await this.env.DB.get(k.name, "json");
+      if (o && !(await this.ctx.storage.get(k.name))) await this.ctx.storage.put(k.name, o);
+    }
+    await this.ctx.storage.put("migrated", true);
+  }
+  async add(key, order) { await this.ctx.storage.put(key, order); }
+  async get(key) { return (await this.ctx.storage.get(key)) || null; }
+  async put(key, order) { await this.ctx.storage.put(key, order); }
+  async remove(key) { await this.ctx.storage.delete(key); }
+  async list(limit = 200) {
+    await this.migrate();
+    const m = await this.ctx.storage.list({ prefix: "order:", limit });
+    return [...m].map(([key, o]) => ({ key, ...o }));
+  }
+  // Bitta akkauntdan soatiga ko‘pi bilan `max` ta buyurtma; true — ruxsat
+  async hit(uid, max = 5) {
+    const k = "rl:" + uid, now = Date.now();
+    const r = (await this.ctx.storage.get(k)) || { n: 0, reset: now + 3600e3 };
+    if (now > r.reset) { r.n = 0; r.reset = now + 3600e3; }
+    if (r.n >= max) return false;
+    r.n++;
+    await this.ctx.storage.put(k, r);
+    return true;
+  }
+}
+const orders = (env) => env.ORDERS.get(env.ORDERS.idFromName("main"));
 
 const json = (data, status = 200, headers = {}) =>
   new Response(JSON.stringify(data), {
@@ -187,11 +222,12 @@ function orderButtons(key, status) {
 
 // Holatni o‘zgartiradi; tasdiqlansa yoki bekor qilinsa, mijozga xabar yuboradi
 async function setOrderStatus(env, key, status) {
-  const o = await env.DB.get(key, "json");
+  const store = orders(env);
+  const o = await store.get(key);
   if (!o) return null;
   const prev = o.status;
   o.status = status;
-  await env.DB.put(key, JSON.stringify(o));
+  await store.put(key, o);
   if (prev !== status && o.tgId && env.TELEGRAM_BOT_TOKEN) {
     const items = (o.items || []).map((i) => `• ${esc(i.title)} — ${esc(i.date)}`).join("\n");
     if (status === "confirmed") await tgSend(env, o.tgId, `✅ <b>Buyurtmangiz tasdiqlandi</b> (${esc(o.no)})\n\n${items}\n\nVaucher va tafsilotlar shu chatga yuboriladi. Savollar bo‘lsa, shu yerga yozing.`);
@@ -294,13 +330,12 @@ async function handle(request, env, ctx) {
   if (path === "/api/orders" && method === "POST") {
     const cust = await customerOf(request, env);
     if (!cust) return json({ error: "Buyurtma berish uchun Telegram orqali kiring", login: true }, 401);
-    // bitta akkauntdan soatiga ko‘pi bilan 5 ta buyurtma
-    const rlKey = "rl:" + cust.id;
-    const used = Number(await env.DB.get(rlKey)) || 0;
-    if (used >= 5) return json({ error: "Juda ko‘p buyurtma. Birozdan keyin urinib ko‘ring yoki bizga Telegramda yozing." }, 429);
+    const store = orders(env);
     let o;
     try { o = await request.json(); } catch { return json({ error: "Noto‘g‘ri so‘rov" }, 400); }
     if (!str(o.name)) return json({ error: "Ismingizni kiriting" }, 400);
+    // bitta akkauntdan soatiga ko‘pi bilan 5 ta buyurtma
+    if (!(await store.hit(cust.id))) return json({ error: "Juda ko‘p buyurtma. Birozdan keyin urinib ko‘ring yoki bizga Telegramda yozing." }, 429);
     const at = new Date().toISOString();
     const order = {
       no: str(o.no, 20) || "DV-" + Date.now().toString().slice(-6), at, status: "new",
@@ -312,8 +347,7 @@ async function handle(request, env, ctx) {
       })),
     };
     const key = "order:" + (9e15 - Date.now()).toString().padStart(16, "0") + ":" + order.no; // yangilari birinchi
-    await env.DB.put(key, JSON.stringify(order));
-    await env.DB.put(rlKey, String(used + 1), { expirationTtl: 3600 });
+    await store.add(key, order);
     ctx.waitUntil(notifyOrder(env, order, key));
     return json({ ok: true, no: order.no });
   }
@@ -370,19 +404,21 @@ async function handle(request, env, ctx) {
     }
 
     if (path === "/api/admin/orders" && method === "GET") {
-      const list = await env.DB.list({ prefix: "order:", limit: 200 });
-      const orders = await Promise.all(list.keys.map(async (k) => ({ key: k.name, ...(await env.DB.get(k.name, "json")) })));
-      return json(orders);
+      return json(await orders(env).list(200), 200, { "cache-control": "no-store" });
     }
     const om = decodeURIComponent(path).match(/^\/api\/admin\/orders\/(order:[^/]+)$/);
     if (om) {
-      const key = om[1];
-      if (method === "DELETE") { await env.DB.delete(key); return json({ ok: true }); }
+      const key = om[1], store = orders(env);
+      if (method === "DELETE") {
+        await store.remove(key);
+        await env.DB.delete(key); // eski KV nusxasi bo‘lsa, u ham o‘chsin
+        return json({ ok: true });
+      }
       if (method === "PATCH") {
         const { status, note } = await request.json();
-        let o = await env.DB.get(key, "json");
+        let o = await store.get(key);
         if (!o) return json({ error: "Buyurtma topilmadi" }, 404);
-        if (note !== undefined) { o.note = str(note, 1000); await env.DB.put(key, JSON.stringify(o)); }
+        if (note !== undefined) { o.note = str(note, 1000); await store.put(key, o); }
         // holat o‘zgarsa, mijozga ham xabar boradi (bot tugmalari bilan bir xil)
         if (["new", "confirmed", "done", "cancelled"].includes(status)) o = await setOrderStatus(env, key, status);
         return json(o);
