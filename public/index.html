@@ -615,9 +615,12 @@ function cardsHtml(list) {
 /* ===== Batafsil va band qilish ===== */
 function openDetail(id) {
   const it = byId(id);
+  // bugundan boshlab 21 kun; sana mahalliy vaqt bo‘yicha (toISOString UTC ga o‘tkazib, kunni siljitib yuborardi)
   const today = new Date();
-  const days = [...Array(14)].map((_, i) => { const d = new Date(today); d.setDate(d.getDate() + i + 1); return d; });
-  S.sel = { id, date: days[0].toISOString().slice(0, 10), adults: it.group ? 1 : 2, kids: 0 };
+  const days = [...Array(21)].map((_, i) => { const d = new Date(today); d.setDate(d.getDate() + i); return d; });
+  const isoOf = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const dayName = (d, i) => i === 0 ? "Bugun" : i === 1 ? "Ertaga" : WD[d.getDay()];
+  S.sel = { id, date: isoOf(days[0]), adults: it.group ? 1 : 2, kids: 0 };
   $("#dBody").innerHTML = `
     <div class="d-thumb">${photo(it)}</div>
     <h2 class="d-title" id="dTitle">${it.t}</h2>
@@ -625,8 +628,8 @@ function openDetail(id) {
     <p class="d-desc">${it.d}</p>
     <ul class="incl">${it.inc.map(x => `<li>${x}</li>`).join("")}</ul>
     <div class="field-label">${it.cat === "visa" && it.nokids ? "Safar sanasi" : "Sanani tanlang"}</div>
-    <div class="dates" role="group" aria-label="Sana">${days.map(d => { const iso = d.toISOString().slice(0, 10);
-      return `<button class="date" type="button" data-date="${iso}" aria-pressed="${iso === S.sel.date}"><span>${WD[d.getDay()]}</span><b>${d.getDate()}</b><span>${MONTHS[d.getMonth()]}</span></button>`; }).join("")}</div>
+    <div class="dates" role="group" aria-label="Sana">${days.map((d, i) => { const iso = isoOf(d);
+      return `<button class="date" type="button" data-date="${iso}" aria-pressed="${iso === S.sel.date}"><span>${dayName(d, i)}</span><b>${d.getDate()}</b><span>${MONTHS[d.getMonth()]}</span></button>`; }).join("")}</div>
     ${it.group ? `<p class="d-desc" style="margin-top:14px">Narx butun guruh uchun belgilangan.</p>` : `
     <div class="field-label">Mehmonlar</div>
     <div class="counter"><div>Kattalar<small>${money(it.p)} / kishi</small></div>
