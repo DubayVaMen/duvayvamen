@@ -27,7 +27,11 @@ export default {
         "Audio gid (rus tilida)"
       ],
       "img": "/img/tours/1.jpg",
-      "active": true
+      "active": true,
+      "tags": [
+        "view"
+      ],
+      "top": false
     },
     {
       "id": 2,
@@ -48,7 +52,12 @@ export default {
         "Shou dasturi"
       ],
       "img": "/img/tours/2.jpg",
-      "active": true
+      "active": true,
+      "tags": [
+        "safari",
+        "adventure"
+      ],
+      "top": false
     },
     {
       "id": 3,
@@ -68,7 +77,12 @@ export default {
         "Jonli musiqa"
       ],
       "img": "/img/tours/3.jpg",
-      "active": true
+      "active": true,
+      "tags": [
+        "cruise",
+        "food"
+      ],
+      "top": false
     },
     {
       "id": 4,
@@ -87,7 +101,11 @@ export default {
         "Shisha pol ko‘prigi"
       ],
       "img": "/img/tours/4.jpg",
-      "active": true
+      "active": true,
+      "tags": [
+        "view"
+      ],
+      "top": false
     },
     {
       "id": 5,
@@ -106,7 +124,12 @@ export default {
         "Barcha qavatlar"
       ],
       "img": "/img/tours/5.jpg",
-      "active": true
+      "active": true,
+      "tags": [
+        "culture",
+        "family"
+      ],
+      "top": false
     },
     {
       "id": 6,
@@ -126,7 +149,12 @@ export default {
         "Shkafcha (chegirma bilan)"
       ],
       "img": "/img/tours/6.jpg",
-      "active": true
+      "active": true,
+      "tags": [
+        "aqua",
+        "family"
+      ],
+      "top": false
     },
     {
       "id": 7,
@@ -145,7 +173,12 @@ export default {
         "Barcha attraksionlar"
       ],
       "img": "/img/tours/7.jpg",
-      "active": true
+      "active": true,
+      "tags": [
+        "parks",
+        "family"
+      ],
+      "top": false
     },
     {
       "id": 8,
@@ -165,7 +198,12 @@ export default {
         "Abra qayig‘i"
       ],
       "img": "/img/tours/8.jpg",
-      "active": true
+      "active": true,
+      "tags": [
+        "tours",
+        "culture"
+      ],
+      "top": false
     },
     {
       "id": 9,
@@ -185,7 +223,12 @@ export default {
         "Tushlik"
       ],
       "img": "/img/tours/9.jpg",
-      "active": true
+      "active": true,
+      "tags": [
+        "tours",
+        "culture"
+      ],
+      "top": false
     },
     {
       "id": 10,
@@ -203,7 +246,12 @@ export default {
         "Kun bo‘yi kirish"
       ],
       "img": "/img/tours/10.jpg",
-      "active": true
+      "active": true,
+      "tags": [
+        "parks",
+        "extreme"
+      ],
+      "top": false
     },
     {
       "id": 11,
@@ -224,7 +272,11 @@ export default {
         "Musiqa tizimi"
       ],
       "img": "/img/tours/11.jpg",
-      "active": true
+      "active": true,
+      "tags": [
+        "cruise"
+      ],
+      "top": false
     },
     {
       "id": 12,
@@ -243,7 +295,12 @@ export default {
         "Suv osti zoo"
       ],
       "img": "/img/tours/12.jpg",
-      "active": true
+      "active": true,
+      "tags": [
+        "animals",
+        "family"
+      ],
+      "top": false
     },
     {
       "id": 13,
@@ -261,7 +318,13 @@ export default {
         "Kirish chiptasi"
       ],
       "img": "/img/tours/13.jpg",
-      "active": true
+      "active": true,
+      "tags": [
+        "show",
+        "food",
+        "family"
+      ],
+      "top": false
     },
     {
       "id": 14,
@@ -279,7 +342,11 @@ export default {
         "Shou chiptasi"
       ],
       "img": "/img/tours/14.jpg",
-      "active": true
+      "active": true,
+      "tags": [
+        "show"
+      ],
+      "top": false
     },
     {
       "id": 15,
@@ -299,7 +366,13 @@ export default {
         "Kechki ovqat"
       ],
       "img": "/img/tours/15.jpg",
-      "active": true
+      "active": true,
+      "tags": [
+        "extreme",
+        "safari",
+        "adventure"
+      ],
+      "top": false
     },
     {
       "id": 16,
@@ -320,7 +393,11 @@ export default {
         "Sug‘urta"
       ],
       "img": "/img/tours/16.jpg",
-      "active": true
+      "active": true,
+      "tags": [
+        "visa"
+      ],
+      "top": false
     },
     {
       "id": 17,
@@ -341,7 +418,11 @@ export default {
         "Bagaj"
       ],
       "img": "/img/tours/17.jpg",
-      "active": true
+      "active": true,
+      "tags": [
+        "visa"
+      ],
+      "top": false
     }
   ]
 };

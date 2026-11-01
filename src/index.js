@@ -259,7 +259,11 @@ async function notifyOrder(env, o, key) {
 }
 
 async function getData(env) {
-  return (await env.DB.get("data", "json")) || SEED;
+  const d = (await env.DB.get("data", "json")) || SEED;
+  // Kategoriyalar qo‘shilishidan oldin saqlangan turlarga boshlang‘ich kategoriyalarni beramiz
+  const seedTags = new Map(SEED.tours.map((t) => [t.id, t.tags]));
+  d.tours = d.tours.map((t) => (Array.isArray(t.tags) ? t : { ...t, tags: seedTags.get(t.id) || [] }));
+  return d;
 }
 
 const str = (v, max = 2000) => String(v ?? "").trim().slice(0, max);
@@ -283,6 +287,8 @@ function cleanData(d) {
       dur: str(t.dur, 60), d: str(t.d, 3000),
       inc: (Array.isArray(t.inc) ? t.inc : []).map((x) => str(x, 200)).filter(Boolean).slice(0, 30),
       img: str(t.img, 300), group: !!t.group, nokids: !!t.nokids, active: t.active !== false,
+      tags: [...new Set((Array.isArray(t.tags) ? t.tags : []).map((x) => str(x, 20)).filter(Boolean))].slice(0, 12),
+      top: !!t.top, // admin belgilagan — ro‘yxatda doim tepada
     };
   });
   return { settings, tours };
@@ -298,7 +304,7 @@ async function handle(request, env, ctx) {
   // Sayt uchun: faqat faol turlar
   if (path === "/api/data" && method === "GET") {
     const d = await getData(env);
-    return json({ settings: { ...d.settings, bot: env.BOT_USERNAME || "" }, tours: d.tours.filter((t) => t.active !== false) }, 200, { "cache-control": "public, max-age=30" });
+    return json({ settings: { ...d.settings, bot: env.BOT_USERNAME || "" }, tours: d.tours.filter((t) => t.active !== false) }, 200, { "cache-control": "public, max-age=10" });
   }
 
   // Rasm berish

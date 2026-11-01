@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>dubayvamen.uz — Dubay turlari va chiptalar</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="/categories.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
@@ -102,6 +103,20 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(22px,3vw,30px);let
 .group-head{display:flex;align-items:baseline;gap:10px;margin:0 0 14px}
 .group-head h3{margin:0;font-family:var(--display);font-size:clamp(18px,2.2vw,22px);letter-spacing:-.01em}
 .group-head span{color:var(--muted);font-size:14px;font-weight:600}
+.group-head .clear{margin-left:auto;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-weight:700;font-size:13px;color:var(--ink)}
+/* kategoriyalar qatori */
+.catbar{position:relative;margin:4px 0 8px}
+.cats{display:flex;gap:10px;overflow-x:auto;scroll-behavior:smooth;scrollbar-width:none;padding:2px 2px 6px}
+.cats::-webkit-scrollbar{display:none}
+.cat{flex:none;width:96px;min-height:96px;border:1px solid transparent;background:var(--chip);border-radius:16px;padding:12px 6px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--ink);font-size:12.5px;font-weight:600;line-height:1.2;text-align:center;transition:background .15s,border-color .15s,transform .15s}
+.cat:hover{transform:translateY(-2px)}
+.cat svg{color:var(--ink);opacity:.85}
+.cat[aria-pressed="true"]{background:var(--sea-soft);border-color:var(--sea)}
+.cat[aria-pressed="true"] svg{color:var(--sea);opacity:1}
+.cb-arrow{position:absolute;top:50%;transform:translateY(-60%);z-index:2;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--surface);box-shadow:var(--shadow);font-size:20px;line-height:1;display:grid;place-items:center;color:var(--ink)}
+.cb-arrow.l{left:-14px}.cb-arrow.r{right:-14px}
+.cb-arrow[hidden]{display:none}
+@media (max-width:760px){.cb-arrow{display:none}.cat{width:84px;min-height:88px;font-size:12px}}
 .sort{appearance:none;-webkit-appearance:none;height:42px;border-radius:21px;border:1px solid var(--line);background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%238A94A6' stroke-width='2'%3E%3Cpath d='M1 1l5 5 5-5'/%3E%3C/svg%3E") right 14px center no-repeat;padding:0 38px 0 16px;font-weight:600;cursor:pointer}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:20px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:20px;overflow:hidden;display:flex;flex-direction:column;text-align:left;padding:0;transition:transform .2s ease,box-shadow .2s ease}
@@ -110,7 +125,9 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(22px,3vw,30px);let
 .thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s ease}
 .card:hover .thumb img{transform:scale(1.06)}
 .thumb::after{content:"";position:absolute;inset:auto 0 0;height:45%;background:linear-gradient(0deg,rgba(10,14,30,.45),transparent);pointer-events:none}
-.thumb .tag{position:absolute;left:10px;top:10px;z-index:1;background:rgba(255,255,255,.92);color:#152033;font-size:12.5px;font-weight:700;border-radius:999px;padding:4px 10px}
+.thumb .tags{position:absolute;left:10px;top:10px;z-index:1;display:flex;gap:6px}
+.thumb .tag{background:rgba(255,255,255,.92);color:#152033;font-size:12.5px;font-weight:700;border-radius:999px;padding:4px 10px}
+.thumb .tag.hot{background:var(--gold);color:#2A1A04}
 .thumb .off{position:absolute;right:10px;top:10px;z-index:1;background:var(--sale);color:#fff;font-size:12.5px;font-weight:800;border-radius:999px;padding:4px 10px}
 .thumb .star-pill{position:absolute;left:10px;bottom:10px;z-index:1;color:#fff;font-size:13px;font-weight:700;display:flex;gap:6px;align-items:center}
 .thumb .star-pill b{color:#FFC75A}
@@ -300,6 +317,11 @@ footer a{color:var(--ink)}
         </div>
       </div>
       <div class="tabs" id="tabs" role="toolbar" aria-label="Shahar"></div>
+      <div class="catbar">
+        <button class="cb-arrow l" type="button" id="cbL" aria-label="Orqaga" hidden>‹</button>
+        <div class="cats" id="cats" role="toolbar" aria-label="Kategoriyalar"></div>
+        <button class="cb-arrow r" type="button" id="cbR" aria-label="Oldinga" hidden>›</button>
+      </div>
       <div id="grid" aria-live="polite"></div>
     </section>
 
@@ -388,7 +410,7 @@ const GROUPS = [
 ];
 
 /* ===== Holat ===== */
-const S = { cur: "USD", city: "Dubay", q: "", sort: "pop", cart: [], orders: [], sel: null };
+const S = { cur: "USD", city: "Dubay", tag: "", q: "", sort: "pop", cart: [], orders: [], sel: null };
 const store = {
   get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
@@ -423,9 +445,26 @@ function renderTabs() {
     `<button type="button" data-q="${q}">${q}</button>`).join("");
 }
 const SORTS = { pop: (a, b) => b.pop - a.pop, low: (a, b) => a.p - b.p, high: (a, b) => b.p - a.p, rate: (a, b) => b.r - a.r };
+// admin "TOP" deb belgilagan turlar har doim tepada
+const order = (a, b) => (b.top ? 1 : 0) - (a.top ? 1 : 0) || SORTS[S.sort](a, b);
+const CATEGORIES = window.CATEGORIES || [];
+const inCity = it => it.city === S.city || it.city === "Onlayn";
+const hasTag = (it, id) => (it.tags || []).includes(id);
+function renderCats() {
+  const list = CATEGORIES.filter(c => ITEMS.some(it => inCity(it) && hasTag(it, c.id)));
+  if (S.tag && !list.some(c => c.id === S.tag)) S.tag = "";
+  $("#cats").innerHTML = list.map(c => `<button class="cat" type="button" data-tag="${c.id}" aria-pressed="${S.tag === c.id}">${catIcon(c)}<span>${c.name}</span></button>`).join("");
+  syncCatArrows();
+}
+function syncCatArrows() {
+  const el = $("#cats"), over = el.scrollWidth > el.clientWidth + 4;
+  $("#cbL").hidden = !over || el.scrollLeft < 8;
+  $("#cbR").hidden = !over || el.scrollLeft + el.clientWidth >= el.scrollWidth - 8;
+}
 function searched() {
   const q = S.q.trim().toLowerCase();
-  return ITEMS.filter(it => (it.t + " " + it.d + " " + it.city + " " + CATS.find(c => c.id === it.cat).name).toLowerCase().includes(q)).sort(SORTS[S.sort]);
+  const tagNames = it => (it.tags || []).map(id => (CATEGORIES.find(c => c.id === id) || {}).name || "").join(" ");
+  return ITEMS.filter(it => (it.t + " " + it.d + " " + it.city + " " + (CATS.find(c => c.id === it.cat) || {}).name + " " + tagNames(it)).toLowerCase().includes(q)).sort(order);
 }
 const groupHtml = (title, list) => `<div class="group"><div class="group-head"><h3>${title}</h3><span>${list.length}</span></div><div class="grid">${cardsHtml(list)}</div></div>`;
 function renderGrid() {
@@ -436,8 +475,14 @@ function renderGrid() {
     if (!list.length) $("#reset").onclick = () => { S.q = ""; $("#q2").value = ""; renderTabs(); renderGrid(); };
     return;
   }
+  if (S.tag) {
+    const c = CATEGORIES.find(x => x.id === S.tag), list = ITEMS.filter(it => inCity(it) && hasTag(it, S.tag)).sort(order);
+    $("#grid").innerHTML = `<div class="group"><div class="group-head"><h3>${c.name}</h3><span>${list.length}</span><button class="clear" type="button" id="clearTag">× Barcha turlar</button></div><div class="grid">${cardsHtml(list)}</div></div>`;
+    $("#clearTag").onclick = () => { S.tag = ""; renderCats(); renderGrid(); };
+    return;
+  }
   $("#grid").innerHTML = GROUPS.map(g => {
-    const list = ITEMS.filter(it => g.cats.includes(it.cat) && (it.city === S.city || it.city === "Onlayn")).sort(SORTS[S.sort]);
+    const list = ITEMS.filter(it => g.cats.includes(it.cat) && inCity(it)).sort(order);
     return list.length ? groupHtml(g.name, list) : "";
   }).join("");
 }
@@ -446,7 +491,7 @@ function cardsHtml(list) {
     const off = it.old ? Math.round((1 - it.p / it.old) * 100) : 0;
     return `<button class="card" type="button" data-id="${it.id}">
       <div class="thumb">${photo(it)}
-        <span class="tag">${it.city}</span>${off ? `<span class="off">−${off}%</span>` : ""}
+        <span class="tags"><span class="tag">${it.city}</span>${it.top ? `<span class="tag hot">🔥 TOP</span>` : ""}</span>${off ? `<span class="off">−${off}%</span>` : ""}
         <span class="star-pill"><b>★ ${it.r}</b>${it.n.toLocaleString("ru-RU")} sharh</span></div>
       <div class="card-body">
         <h3>${it.t}</h3>
@@ -609,8 +654,17 @@ function toast(msg) {
 /* ===== Hodisalar ===== */
 $("#tabs").addEventListener("click", e => {
   const b = e.target.closest("[data-city]"); if (!b) return;
-  S.city = b.dataset.city; S.q = ""; $("#q2").value = ""; renderTabs(); renderGrid();
+  S.city = b.dataset.city; S.q = ""; $("#q2").value = ""; renderTabs(); renderCats(); renderGrid();
 });
+$("#cats").addEventListener("click", e => {
+  const b = e.target.closest("[data-tag]"); if (!b) return;
+  S.tag = S.tag === b.dataset.tag ? "" : b.dataset.tag; S.q = ""; $("#q2").value = "";
+  renderTabs(); renderCats(); renderGrid(); haptic();
+});
+$("#cats").addEventListener("scroll", syncCatArrows, { passive: true });
+addEventListener("resize", syncCatArrows);
+$("#cbL").onclick = () => $("#cats").scrollBy({ left: -320 });
+$("#cbR").onclick = () => $("#cats").scrollBy({ left: 320 });
 $("#quick").addEventListener("click", e => { const b = e.target.closest("[data-q]"); if (!b) return; setQuery(b.dataset.q); });
 $("#grid").addEventListener("click", e => { const c = e.target.closest(".card"); if (c) openDetail(Number(c.dataset.id)); });
 $("#sort").onchange = e => { S.sort = e.target.value; renderGrid(); };
@@ -698,7 +752,7 @@ async function load() {
   }
   // o‘chirilgan turlar savatda qolib ketmasin
   S.cart = S.cart.filter(l => byId(l.id)); store.set("dv_cart", S.cart);
-  renderTabs(); renderGrid(); renderBadge();
+  renderTabs(); renderCats(); renderGrid(); renderBadge();
   // Bot ichidagi mini ilovada mijoz avtomatik kiradi
   if (TG && !S.user) authTelegram({ initData: TG.initData }).catch(() => {});
   const start = TG && TG.initDataUnsafe && TG.initDataUnsafe.start_param; // masalan t.me/dubayvamenbot?startapp=2
