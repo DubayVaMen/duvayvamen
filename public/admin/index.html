@@ -181,6 +181,10 @@ label.f small{font-weight:500;color:var(--muted)}
   .nav .cnt{margin-left:4px}
 }
 .grid2,.grid3{align-items:end}
+.car-box{display:grid;gap:10px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--bg)}
+.car-row{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end}
+.car-row .btn{height:42px;width:42px;padding:0;font-size:20px}
+#addCar{justify-self:start}
 .back{display:none}
 @media (max-width:860px){.back{display:inline-flex}}
 
@@ -536,7 +540,7 @@ $("#addTour").onclick = () => {
   if (dirty && !confirm("Saqlanmagan o‘zgarishlar yo‘qoladi. Davom etasizmi?")) return;
   const id = Math.max(0, ...DATA.tours.map(t => t.id)) + 1;
   sel = id; dirty = true;
-  draft = { id, city: cityF !== "all" ? cityF : "Dubay", cat: "city", t: "", p: 0, old: 0, r: 0, n: 0, pop: 50, dur: "", d: "", inc: [], img: "", group: false, nokids: false, car: false, carType: "", carSeats: 0, active: true, tags: [], top: false, _new: true };
+  draft = { id, city: cityF !== "all" ? cityF : "Dubay", cat: "city", t: "", p: 0, old: 0, r: 0, n: 0, pop: 50, dur: "", d: "", inc: [], img: "", group: false, nokids: false, car: false, cars: [], active: true, tags: [], top: false, _new: true };
   $("#v-tours").classList.add("editing");
   renderList(); renderEditor();
   setTimeout(() => $("#editor [name=t]").focus(), 50);
@@ -575,12 +579,15 @@ function renderEditor() {
       <div class="checks">
         <label class="check"><input type="checkbox" name="group" ${t.group ? "checked" : ""}><span>Narx butun guruh uchun<small>Masalan yaxta yoki transfer — kishi soni so‘ralmaydi</small></span></label>
         <label class="check"><input type="checkbox" name="nokids" ${t.nokids ? "checked" : ""}><span>Bolalar narxi yo‘q<small>Belgilanmasa, bolalar uchun 25% chegirma beriladi</small></span></label>
-        <label class="check"><input type="checkbox" name="car" ${t.car ? "checked" : ""}><span>🚗 Mashina bilan<small>Belgilansa, mashina turi va necha kishilik ekanini yozing — saytda ko‘rinadi</small></span></label>
+        <label class="check"><input type="checkbox" name="car" ${t.car ? "checked" : ""}><span>🚗 Mashina bilan<small>Mijoz turni olayotganda mashinani tanlaydi, uning narxi bilet narxiga qo‘shiladi</small></span></label>
       </div>
-      <div class="grid2 car-box" id="carBox" ${t.car ? "" : "hidden"}>
-        <label class="f">Mashina turi / o‘lchami<input name="carType" list="carTypes" value="${esc(t.carType || "")}" placeholder="Masalan: Minivan"></label>
-        <label class="f">Necha kishilik<input name="carSeats" type="number" min="1" max="100" step="1" inputmode="numeric" value="${t.carSeats || ""}" placeholder="7"></label>
-        <datalist id="carTypes"><option value="Sedan"><option value="SUV / Jip"><option value="Minivan"><option value="Mikroavtobus"><option value="Avtobus"></datalist>
+      <div class="car-box" id="carBox" ${t.car ? "" : "hidden"}>
+        ${(t.cars || []).map((c, i) => `<div class="car-row" data-car="${i}">
+          <label class="f">Necha kishilik<input name="carSeats" type="number" min="1" max="100" step="1" inputmode="numeric" value="${c.seats || ""}" placeholder="7"></label>
+          <label class="f">Narxi, USD<input name="carPrice" type="number" min="0" step="1" inputmode="decimal" value="${c.price || ""}" placeholder="50"></label>
+          <button class="btn danger sm" type="button" data-delcar="${i}" aria-label="Mashinani o‘chirish">×</button>
+        </div>`).join("")}
+        <button class="btn ghost sm" type="button" id="addCar">+ Mashina qo‘shish</button>
       </div>
 
       <div class="sec-t">Kategoriyalar</div>
@@ -608,7 +615,15 @@ function renderEditor() {
     </form>`;
   priceHint();
   const f = $("#tf");
-  f.addEventListener("input", () => { readForm(); markDirty(); priceHint(); $("#carBox").hidden = !f.car.checked; });
+  f.addEventListener("input", e => {
+    readForm(); markDirty(); priceHint();
+    if (e.target.name === "car") { if (draft.car && !draft.cars.length) draft.cars = [{ seats: 0, price: 0 }]; renderEditor(); }
+  });
+  $("#addCar").onclick = () => { readForm(); draft.cars.push({ seats: 0, price: 0 }); markDirty(); renderEditor(); [...document.querySelectorAll(".car-row [name=carSeats]")].at(-1)?.focus(); };
+  $("#carBox").addEventListener("click", e => {
+    const b = e.target.closest("[data-delcar]"); if (!b) return;
+    readForm(); draft.cars.splice(Number(b.dataset.delcar), 1); if (!draft.cars.length) draft.car = false; markDirty(); renderEditor();
+  });
   f.addEventListener("submit", e => { e.preventDefault(); save(); });
   $("#back").onclick = () => select(null);
   const photo = $("#photo");
@@ -626,7 +641,8 @@ function readForm() {
   Object.assign(draft, {
     t: f.t.value, city: f.city.value, cat: f.cat.value, p: Number(f.p.value) || 0, old: Number(f.old.value) || 0, dur: f.dur.value,
     group: f.group.checked, nokids: f.nokids.checked, d: f.d.value, inc: f.inc.value.split("\n").map(s => s.trim()).filter(Boolean),
-    car: f.car.checked, carType: f.carType.value.trim(), carSeats: Math.floor(Number(f.carSeats.value)) || 0,
+    car: f.car.checked,
+    cars: [...f.querySelectorAll(".car-row")].map(r => ({ seats: Math.floor(Number(r.querySelector("[name=carSeats]").value)) || 0, price: Number(r.querySelector("[name=carPrice]").value) || 0 })),
     pop: Number(f.pop.value) || 0, active: f.active.checked,
     top: f.top.checked, tags: [...f.querySelectorAll("[name=tags]:checked")].map(x => x.value)
   });
@@ -675,7 +691,11 @@ async function save() {
   const err = $("#formErr");
   if (!draft.t.trim()) { err.textContent = "Tur nomini kiriting."; $("#tf").t.focus(); return; }
   if (!draft.p) { err.textContent = "Narxni kiriting."; $("#tf").p.focus(); return; }
-  if (draft.car && !draft.carSeats) { err.textContent = "Mashina necha kishilik ekanini kiriting."; $("#tf").carSeats.focus(); return; }
+  if (draft.car) {
+    const bad = draft.cars.findIndex(c => !c.seats || !c.price);
+    if (!draft.cars.length) { err.textContent = "Kamida bitta mashina qo‘shing yoki “Mashina bilan” belgisini olib tashlang."; return; }
+    if (bad >= 0) { err.textContent = `${bad + 1}-mashinaning necha kishilik va narxini kiriting.`; document.querySelectorAll(".car-row")[bad].querySelector(!draft.cars[bad].seats ? "[name=carSeats]" : "[name=carPrice]").focus(); return; }
+  } else draft.cars = [];
   err.textContent = "";
   const { _new, ...t } = draft;
   const tours = _new ? [...DATA.tours, t] : DATA.tours.map(x => x.id === t.id ? t : x);
@@ -722,7 +742,7 @@ function renderOrders() {
         ${o.phone ? `<a href="tel:${esc(o.phone.replace(/[^\d+]/g, ""))}">${esc(o.phone)}</a>` : `<span class="meta">telefon yo‘q</span>`}
         ${tg ? ` · <a href="https://t.me/${esc(tg)}" target="_blank" rel="noopener">@${esc(tg)}</a>` : o.tgId ? ` · <a href="tg://user?id=${esc(o.tgId)}">Telegramda yozish</a>` : ""}
         ${o.tgId ? `<span class="meta" title="Telegram orqali tasdiqlangan">✓ Telegram</span>` : ""}
-        <ul>${(o.items || []).map(i => `<li>${esc(i.title)} — ${esc(i.date)}${i.adults ? `, ${i.adults} katta` : ""}${i.kids ? `, ${i.kids} bola` : ""} · $${Math.round(i.sum)}</li>`).join("")}</ul>
+        <ul>${(o.items || []).map(i => `<li>${esc(i.title)} — ${esc(i.date)}${i.adults ? `, ${i.adults} katta` : ""}${i.kids ? `, ${i.kids} bola` : ""}${i.car ? `, 🚗 ${esc(i.car)}` : ""} · $${Math.round(i.sum)}</li>`).join("")}</ul>
       </div>
       <div class="side">
         <span class="sum">$${Math.round(o.totalUsd || 0)}</span>
