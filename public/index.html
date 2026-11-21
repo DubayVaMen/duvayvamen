@@ -66,6 +66,11 @@ header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;backgroun
 .hero h1,.hero p{text-shadow:0 2px 18px rgba(10,12,30,.45)}
 .hero p.hero-lead{margin:0 0 10px;font-size:clamp(18px,2vw,22px);font-weight:700;color:#fff;max-width:34ch;line-height:1.35}
 .hero-lead b{color:#FFC75A}
+/* 90% taklifi — ko‘zga tashlanadigan blok */
+.hero-deal{display:flex;align-items:center;gap:16px;margin:0 0 20px;padding:12px 20px 12px 12px;max-width:560px;border-radius:20px;background:rgba(18,20,42,.55);border:1.5px solid rgba(255,199,90,.7);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 0 0 4px rgba(255,199,90,.12),0 14px 40px rgba(0,0,0,.3)}
+.deal-num{flex:none;font-family:var(--display);font-weight:800;font-size:clamp(30px,3.6vw,44px);line-height:1;letter-spacing:-.03em;color:#2A1A00;background:linear-gradient(135deg,#FFE08A,#F5A623);padding:12px 14px;border-radius:14px;box-shadow:0 6px 18px rgba(245,166,35,.45)}
+.hero .hero-deal p{margin:0;max-width:none;font-size:clamp(16px,1.9vw,21px);font-weight:700;line-height:1.3;color:#fff}
+.hero-deal b{color:#FFC75A}
 .hero h1{font-family:var(--display);font-weight:700;font-size:clamp(34px,6vw,72px);line-height:1.04;letter-spacing:-.03em;margin:0 0 14px;max-width:13ch}
 .hero p{margin:0 0 26px;font-size:18px;max-width:46ch;color:rgba(255,255,255,.88)}
 .hero-search{display:flex;align-items:center;gap:8px;max-width:600px;background:#fff;border-radius:18px;padding:7px 7px 7px 16px;box-shadow:0 18px 50px rgba(0,0,0,.3)}
@@ -305,6 +310,8 @@ footer a{color:var(--ink)}
   .hero-search{padding-left:12px}
   .hero-search .btn{height:46px;padding:0 16px}
   .hero p{font-size:16px}
+  .hero-deal{gap:12px;padding:10px 14px 10px 10px;border-radius:16px}
+  .hero .hero-deal p{font-size:15.5px}
   .perks{grid-template-columns:1fr 1fr;gap:10px;margin-top:-40px}
   .perk{padding:12px;flex-direction:column;gap:10px}
   .perk i{width:36px;height:36px}
@@ -356,7 +363,7 @@ footer a{color:var(--ink)}
     <div class="wrap">
       <span class="hero-kicker"><span class="pulse" aria-hidden="true"></span> Dubay · Abu-Dabi · BAA</span>
       <h1 id="heroTitle">Dubayga xush kelibsiz!</h1>
-      <p class="hero-lead">Biz orqali <b>90%</b> joylarning biletlarini kassadan <b>arzon narxda</b> sotib olishingiz mumkin.</p>
+      <div class="hero-deal"><span class="deal-num">90%</span><p>Biz orqali <b>90%</b> joylarning biletlarini kassadan <b>arzon narxda</b> sotib olishingiz mumkin.</p></div>
       <p>Ekskursiyalar, attraksion biletlari, safari va kruizlar — o‘zbek tilida yordam, tasdiq Telegramga keladi.</p>
       <form class="hero-search" id="heroForm" role="search">
         <svg class="hs-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
