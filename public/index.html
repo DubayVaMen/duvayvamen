@@ -66,6 +66,11 @@ header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;backgroun
 .hero h1,.hero p{text-shadow:0 2px 18px rgba(10,12,30,.45)}
 .hero p.hero-lead{margin:0 0 10px;font-size:clamp(18px,2vw,22px);font-weight:700;color:#fff;max-width:34ch;line-height:1.35}
 .hero-lead b{color:#FFC75A}
+/* 90% taklifi — ko‘zga tashlanadigan blok */
+.hero-deal{display:flex;align-items:center;gap:16px;margin:0 0 20px;padding:12px 20px 12px 12px;max-width:560px;border-radius:20px;background:rgba(18,20,42,.55);border:1.5px solid rgba(255,199,90,.7);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 0 0 4px rgba(255,199,90,.12),0 14px 40px rgba(0,0,0,.3)}
+.deal-num{flex:none;font-family:var(--display);font-weight:800;font-size:clamp(30px,3.6vw,44px);line-height:1;letter-spacing:-.03em;color:#2A1A00;background:linear-gradient(135deg,#FFE08A,#F5A623);padding:12px 14px;border-radius:14px;box-shadow:0 6px 18px rgba(245,166,35,.45)}
+.hero .hero-deal p{margin:0;max-width:none;font-size:clamp(16px,1.9vw,21px);font-weight:700;line-height:1.3;color:#fff}
+.hero-deal b{color:#FFC75A}
 .hero h1{font-family:var(--display);font-weight:700;font-size:clamp(34px,6vw,72px);line-height:1.04;letter-spacing:-.03em;margin:0 0 14px;max-width:13ch}
 .hero p{margin:0 0 26px;font-size:18px;max-width:46ch;color:rgba(255,255,255,.88)}
 .hero-search{display:flex;align-items:center;gap:8px;max-width:600px;background:#fff;border-radius:18px;padding:7px 7px 7px 16px;box-shadow:0 18px 50px rgba(0,0,0,.3)}
@@ -73,7 +78,7 @@ header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;backgroun
 .hero-search .btn{height:52px;padding:0 26px;border-radius:13px}
 .pulse{width:8px;height:8px;border-radius:50%;background:#4ADE80;box-shadow:0 0 0 0 rgba(74,222,128,.6);animation:pulse 2s infinite}
 @keyframes pulse{70%{box-shadow:0 0 0 8px rgba(74,222,128,0)}100%{box-shadow:0 0 0 0 rgba(74,222,128,0)}}
-.hero-stats{display:grid;grid-template-columns:repeat(4,auto);justify-content:start;gap:12px 40px;margin:40px 0 0;padding:0}
+.hero-stats{display:grid;grid-template-columns:repeat(2,auto);justify-content:start;gap:12px 40px;margin:40px 0 0;padding:0}
 .hero-stats div{border-left:2px solid rgba(255,255,255,.35);padding-left:14px}
 .hero-stats dt{font-size:13px;color:rgba(255,255,255,.75);font-weight:600;order:2}
 .hero-stats dd{order:1}
@@ -252,6 +257,13 @@ footer a{color:var(--ink)}
 .step{display:flex;align-items:center;gap:12px}
 .step button{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--surface);font-size:18px;font-weight:700}
 .step output{min-width:20px;text-align:center;font-weight:800}
+.cars{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.car-opt{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 12px;text-align:left;line-height:1.25}
+.car-opt b{display:block;font-size:15px}
+.car-opt span{font-size:13px;color:var(--muted);font-weight:600}
+.car-opt[aria-checked="true"]{background:var(--sea);border-color:var(--sea);color:var(--sea-ink)}
+.car-opt[aria-checked="true"] span{color:inherit}
+.car-opt:disabled{opacity:.45;cursor:not-allowed}
 .total-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
 .total-row strong{font-size:22px;font-weight:800}
 .foot-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -301,10 +313,12 @@ footer a{color:var(--ink)}
   .hero{background-size:auto 150%;background-position:50% 0}
   .hero::before{background:linear-gradient(180deg,rgba(18,20,42,.7) 0%,rgba(18,20,42,.45) 40%,rgba(18,20,42,0) 62%,rgba(18,20,42,0) 86%,var(--bg) 100%)}
   .hero .wrap{padding-top:32px;padding-bottom:250px;min-height:0;display:block}
-  .hero-stats{grid-template-columns:1fr 1fr;gap:14px 18px;margin-top:26px}
+  .hero-stats{grid-template-columns:auto auto;gap:14px 18px;margin-top:26px}
   .hero-search{padding-left:12px}
   .hero-search .btn{height:46px;padding:0 16px}
   .hero p{font-size:16px}
+  .hero-deal{gap:12px;padding:10px 14px 10px 10px;border-radius:16px}
+  .hero .hero-deal p{font-size:15.5px}
   .perks{grid-template-columns:1fr 1fr;gap:10px;margin-top:-40px}
   .perk{padding:12px;flex-direction:column;gap:10px}
   .perk i{width:36px;height:36px}
@@ -356,7 +370,7 @@ footer a{color:var(--ink)}
     <div class="wrap">
       <span class="hero-kicker"><span class="pulse" aria-hidden="true"></span> Dubay · Abu-Dabi · BAA</span>
       <h1 id="heroTitle">Dubayga xush kelibsiz!</h1>
-      <p class="hero-lead">Biz orqali <b>90%</b> joylarning biletlarini kassadan <b>arzon narxda</b> sotib olishingiz mumkin.</p>
+      <div class="hero-deal"><span class="deal-num">90%</span><p>Biz orqali <b>90%</b> joylarning biletlarini kassadan <b>arzon narxda</b> sotib olishingiz mumkin.</p></div>
       <p>Ekskursiyalar, attraksion biletlari, safari va kruizlar — o‘zbek tilida yordam, tasdiq Telegramga keladi.</p>
       <form class="hero-search" id="heroForm" role="search">
         <svg class="hs-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
@@ -367,8 +381,6 @@ footer a{color:var(--ink)}
       <div class="hero-quick" id="quick"></div>
       <dl class="hero-stats" aria-label="Biz haqimizda raqamlarda">
         <div><dt>Turlar va biletlar</dt><dd id="stTours">—</dd></div>
-        <div><dt>O‘rtacha reyting</dt><dd id="stRating">—</dd></div>
-        <div><dt>Mijozlar sharhlari</dt><dd id="stReviews">—</dd></div>
         <div><dt>Kassadan arzon</dt><dd>90%</dd></div>
       </dl>
     </div>
@@ -462,7 +474,7 @@ footer a{color:var(--ink)}
       <p>Aloqa uchun: <a href="tel:+971553760330" id="fPhone">+971 55 376 0330</a></p>
     </div>
     <nav aria-label="Sayt bo‘limlari"><b>Sayt</b><a href="#katalog">Turlar va biletlar</a><a href="#how">Qanday ishlaydi</a><a href="#guide">Safar maslahatlari</a></nav>
-    <div id="fPages" hidden><b>Bizning sahifalar</b><a href="#" target="_blank" rel="noopener" id="fCh" hidden>Telegram kanal</a><a href="#" target="_blank" rel="noopener" id="fIg" hidden>Instagram</a></div>
+    <div id="fPages" hidden><b>Bizning sahifalar</b><a href="#" target="_blank" rel="noopener" id="fCh" hidden>Telegram kanal</a><a href="#" target="_blank" rel="noopener" id="fIg" hidden>Instagram</a><a href="#" target="_blank" rel="noopener" id="fYt" hidden>YouTube</a></div>
   </div>
   <div class="wrap f-bottom"><span>© <span id="fYear">2026</span> dubayvamen.uz</span><span>Narxlar USD da, AED kursi bo‘yicha hisoblanadi</span></div>
 </footer>
@@ -544,7 +556,11 @@ const MONTHS = ["yan","fev","mar","apr","may","iyn","iyl","avg","sen","okt","noy
 const WD = ["Ya","Du","Se","Ch","Pa","Ju","Sh"];
 function fmtDate(iso) { const d = new Date(iso + "T00:00:00"); return d.getDate() + " " + MONTHS[d.getMonth()]; }
 const kidPrice = it => it.group || it.nokids ? 0 : it.p * 0.75;
-function lineTotal(l) { const it = byId(l.id); return it.group ? it.p : it.p * l.adults + kidPrice(it) * l.kids; }
+const carsOf = it => (it.car && Array.isArray(it.cars) ? it.cars : []).filter(c => c.seats > 0);
+const carOf = l => l.car >= 0 ? carsOf(byId(l.id))[l.car] || null : null;
+function lineTotal(l) { const it = byId(l.id); return (it.group ? it.p : it.p * l.adults + kidPrice(it) * l.kids) + (carOf(l)?.price || 0); }
+// mashina bu guruhni sig‘dira oladimi (guruh narxli turlarda kishi soni so‘ralmaydi)
+const carFits = (it, c, l) => it.group || c.seats >= l.adults + l.kids;
 const photo = it => it.img ? `<img src="${esc(it.img)}" alt="" loading="lazy" decoding="async" width="800" height="500">` : "";
 function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
 
@@ -560,8 +576,8 @@ const SORTS = { pop: (a, b) => b.pop - a.pop, low: (a, b) => a.p - b.p, high: (a
 const order = (a, b) => (b.top ? 1 : 0) - (a.top ? 1 : 0) || SORTS[S.sort](a, b);
 const CATEGORIES = window.CATEGORIES || [];
 const inCity = it => it.city === S.city || it.city === "Onlayn";
-// Mashina: "Minivan · 7 kishilik"
-const carText = it => it.car ? [it.carType, it.carSeats ? it.carSeats + " kishilik" : ""].filter(Boolean).join(" · ") || "Mashina bilan" : "";
+// Kartochkada: "Mashina: 4 / 7 kishilik"
+const carText = it => { const c = carsOf(it); return c.length ? "Mashina: " + c.map(x => x.seats).join(" / ") + " kishilik" : ""; };
 const hasTag = (it, id) => (it.tags || []).includes(id);
 function renderCats() {
   const list = CATEGORIES.filter(c => ITEMS.some(it => inCity(it) && hasTag(it, c.id)));
@@ -622,11 +638,11 @@ function openDetail(id) {
   const days = [...Array(21)].map((_, i) => { const d = new Date(today); d.setDate(d.getDate() + i); return d; });
   const isoOf = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   const dayName = (d, i) => i === 0 ? "Bugun" : i === 1 ? "Ertaga" : WD[d.getDay()];
-  S.sel = { id, date: isoOf(days[0]), adults: it.group ? 1 : 2, kids: 0 };
+  S.sel = { id, date: isoOf(days[0]), adults: it.group ? 1 : 2, kids: 0, car: -1 };
   $("#dBody").innerHTML = `
     <div class="d-thumb">${photo(it)}</div>
     <h2 class="d-title" id="dTitle">${it.t}</h2>
-    <div class="meta">${it.r ? `<span class="star">★ ${it.r}</span><span>${it.n.toLocaleString("ru-RU")} sharh</span>` : ""}<span>${it.dur}</span><span>${it.city}</span>${carText(it) ? `<span>🚗 ${esc(carText(it))}</span>` : ""}</div>
+    <div class="meta">${it.r ? `<span class="star">★ ${it.r}</span><span>${it.n.toLocaleString("ru-RU")} sharh</span>` : ""}<span>${it.dur}</span><span>${it.city}</span></div>
     <p class="d-desc">${it.d}</p>
     <ul class="incl">${it.inc.map(x => `<li>${x}</li>`).join("")}</ul>
     <div class="field-label">${it.cat === "visa" && it.nokids ? "Safar sanasi" : "Sanani tanlang"}</div>
@@ -637,11 +653,21 @@ function openDetail(id) {
     <div class="counter"><div>Kattalar<small>${money(it.p)} / kishi</small></div>
       <div class="step"><button type="button" data-step="adults" data-d="-1" aria-label="Kattalarni kamaytirish">−</button><output id="o_adults">${S.sel.adults}</output><button type="button" data-step="adults" data-d="1" aria-label="Kattalarni ko‘paytirish">+</button></div></div>
     ${it.nokids ? "" : `<div class="counter"><div>Bolalar (3–11 yosh)<small>${money(kidPrice(it))} / kishi</small></div>
-      <div class="step"><button type="button" data-step="kids" data-d="-1" aria-label="Bolalarni kamaytirish">−</button><output id="o_kids">0</output><button type="button" data-step="kids" data-d="1" aria-label="Bolalarni ko‘paytirish">+</button></div></div>`}`}`;
+      <div class="step"><button type="button" data-step="kids" data-d="-1" aria-label="Bolalarni kamaytirish">−</button><output id="o_kids">0</output><button type="button" data-step="kids" data-d="1" aria-label="Bolalarni ko‘paytirish">+</button></div></div>`}`}
+    ${carsOf(it).length ? `<div class="field-label">🚗 Mashina</div><div class="cars" id="dCars" role="radiogroup" aria-label="Mashina"></div>` : ""}`;
+  renderCars();
   updateDetailTotal();
   openSheet("detail");
 }
 function updateDetailTotal() { $("#dTotal").textContent = money(lineTotal(S.sel)); }
+function renderCars() {
+  const box = $("#dCars"); if (!box) return;
+  const it = byId(S.sel.id), list = carsOf(it);
+  if (S.sel.car >= 0 && !carFits(it, list[S.sel.car], S.sel)) S.sel.car = -1; // kishi ko‘paysa, kichik mashina tanlovi bekor bo‘ladi
+  const opt = (i, title, sub, off) => `<button class="car-opt" type="button" role="radio" data-car="${i}" aria-checked="${S.sel.car === i}" ${off ? "disabled" : ""}><b>${title}</b><span>${sub}</span></button>`;
+  box.innerHTML = opt(-1, "Mashinasiz", "Qo‘shimcha to‘lov yo‘q")
+    + list.map((c, i) => { const off = !carFits(it, c, S.sel); return opt(i, `${c.seats} kishilik`, off ? "Hammangiz sig‘maysiz" : "+" + money(c.price), off); }).join("");
+}
 $("#dBody").addEventListener("click", e => {
   const d = e.target.closest("[data-date]");
   if (d) { S.sel.date = d.dataset.date; $("#dBody").querySelectorAll("[data-date]").forEach(b => b.setAttribute("aria-pressed", b === d)); return; }
@@ -649,12 +675,14 @@ $("#dBody").addEventListener("click", e => {
   if (s) {
     const k = s.dataset.step, min = k === "adults" ? 1 : 0;
     S.sel[k] = Math.max(min, Math.min(20, S.sel[k] + Number(s.dataset.d)));
-    $("#o_" + k).textContent = S.sel[k]; updateDetailTotal(); haptic();
+    $("#o_" + k).textContent = S.sel[k]; renderCars(); updateDetailTotal(); haptic();
   }
+  const c = e.target.closest("[data-car]");
+  if (c && !c.disabled) { S.sel.car = Number(c.dataset.car); renderCars(); updateDetailTotal(); haptic(); }
 });
 function addSelToCart() {
   const same = S.cart.find(l => l.id === S.sel.id && l.date === S.sel.date);
-  if (same) { same.adults = S.sel.adults; same.kids = S.sel.kids; } else S.cart.push({ ...S.sel });
+  if (same) { same.adults = S.sel.adults; same.kids = S.sel.kids; same.car = S.sel.car; } else S.cart.push({ ...S.sel });
   store.set("dv_cart", S.cart); renderBadge();
 }
 $("#addCart").onclick = () => { addSelToCart(); closeSheets(); toast("Savatga qo‘shildi"); };
@@ -676,7 +704,7 @@ function openCart(focusForm) {
     const u = S.user && S.user.user;
     body.innerHTML = S.cart.map((l, i) => { const it = byId(l.id);
       return `<div class="c-item"><div class="c-ico">${photo(it)}</div>
-        <div class="c-info"><b>${it.t}</b><span>${fmtDate(l.date)}${it.group ? "" : `, ${l.adults} katta${l.kids ? `, ${l.kids} bola` : ""}`}</span></div>
+        <div class="c-info"><b>${it.t}</b><span>${fmtDate(l.date)}${it.group ? "" : `, ${l.adults} katta${l.kids ? `, ${l.kids} bola` : ""}`}${carOf(l) ? `, 🚗 ${carOf(l).seats} kishilik` : ""}</span></div>
         <div class="c-right"><strong>${money(lineTotal(l))}</strong><button type="button" data-rm="${i}">O‘chirish</button></div></div>`; }).join("") + (u ? `
       <form class="form" id="orderForm" novalidate>
         <div class="tg-who"><span>✈️ Telegram: <b>${esc(u.username ? "@" + u.username : u.name)}</b> <span class="ok">✓</span></span><button type="button" id="tgOut">Boshqa akkaunt</button></div>
@@ -713,7 +741,7 @@ async function submitOrder(e) {
   const order = {
     no: "DV-" + Date.now().toString().slice(-6), at: new Date().toISOString(),
     name: f.name.value.trim(), phone: f.phone.value.trim(), tg: u.username ? "@" + u.username : "",
-    items: S.cart.map(l => ({ ...l, title: byId(l.id).t, sum: lineTotal(l) })), totalUsd: cartTotal(), cur: S.cur
+    items: S.cart.map(l => { const c = carOf(l); return { ...l, title: byId(l.id).t, sum: lineTotal(l), car: c ? `${c.seats} kishilik, $${c.price}` : "", carPrice: c?.price || 0 }; }), totalUsd: cartTotal(), cur: S.cur
   };
   const btn = $("#cFoot button[type=submit]");
   btn.disabled = true; btn.textContent = "Yuborilmoqda…"; err.textContent = "";
@@ -825,10 +853,7 @@ if (TG) {
 /* ===== Bosh sahifa: ko‘rsatkichlar va tavsiya etilgan turlar ===== */
 function renderHome() {
   // ko‘rsatkichlar haqiqiy katalogdan hisoblanadi
-  const rated = ITEMS.filter(it => it.r > 0), reviews = ITEMS.reduce((s, it) => s + (it.n || 0), 0);
   $("#stTours").textContent = ITEMS.length + "+";
-  $("#stRating").textContent = rated.length ? "★ " + (rated.reduce((s, it) => s + it.r, 0) / rated.length).toFixed(1) : "—";
-  $("#stReviews").textContent = reviews >= 1000 ? (reviews / 1000).toFixed(reviews >= 10000 ? 0 : 1).replace(".", ",") + " ming+" : String(reviews);
   // TOP turlar, yetmasa eng mashhurlari bilan to‘ldiriladi
   const pick = [...ITEMS.filter(it => it.top).sort((a, b) => b.pop - a.pop), ...ITEMS.filter(it => !it.top && it.cat !== "visa").sort((a, b) => b.pop - a.pop)].slice(0, 8);
   $("#featured").hidden = !pick.length;
@@ -875,7 +900,8 @@ function applySettings(s) {
   // “Bizning sahifalar”: faqat admin to‘ldirgan havolalar ko‘rinadi
   if (s.channel) { $("#fCh").href = s.channel; $("#fCh").hidden = false; }
   if (s.instagram) { $("#fIg").href = s.instagram; $("#fIg").hidden = false; }
-  $("#fPages").hidden = !(s.channel || s.instagram);
+  if (s.youtube) { $("#fYt").href = s.youtube; $("#fYt").hidden = false; }
+  $("#fPages").hidden = !(s.channel || s.instagram || s.youtube);
 }
 async function load() {
   $("#grid").innerHTML = `<div class="empty">Yuklanmoqda…</div>`;

@@ -240,7 +240,7 @@ async function setOrderStatus(env, key, status) {
 async function notifyOrder(env, o, key) {
   if (!env.TELEGRAM_BOT_TOKEN) return;
   const e = esc;
-  const items = o.items.map((i) => `• ${e(i.title)} — ${e(i.date)}${i.adults ? `, ${i.adults} katta` : ""}${i.kids ? `, ${i.kids} bola` : ""} · $${Math.round(i.sum)}`);
+  const items = o.items.map((i) => `• ${e(i.title)} — ${e(i.date)}${i.adults ? `, ${i.adults} katta` : ""}${i.kids ? `, ${i.kids} bola` : ""}${i.car ? `, 🚗 ${e(i.car)}` : ""} · $${Math.round(i.sum)}`);
   const admin = [
     `🆕 <b>Yangi buyurtma ${e(o.no)}</b>`,
     `👤 ${e(o.name)}`,
@@ -273,7 +273,7 @@ const num = (v, min = 0, max = 1e7) => Math.min(max, Math.max(min, Number(v) || 
 function cleanData(d) {
   const s = d.settings || {};
   const settings = {
-    phone: str(s.phone, 40), telegram: str(s.telegram, 200), channel: str(s.channel, 200), instagram: str(s.instagram, 200),
+    phone: str(s.phone, 40), telegram: str(s.telegram, 200), channel: str(s.channel, 200), instagram: str(s.instagram, 200), youtube: str(s.youtube, 200),
     email: str(s.email, 120), aed: num(s.aed, 0.1, 100) || 3.6725,
   };
   const ids = new Set();
@@ -281,13 +281,16 @@ function cleanData(d) {
     let id = Math.floor(num(t.id, 1, 1e9)) || 1;
     while (ids.has(id)) id++;
     ids.add(id);
+    // mashinalar: har biri necha kishilik va narxi (USD); mijoz tanlasa bilet narxiga qo‘shiladi
+    const cars = (Array.isArray(t.cars) ? t.cars : t.car && t.carSeats ? [{ seats: t.carSeats, price: 0 }] : [])
+      .map((c) => ({ seats: Math.floor(num(c?.seats, 0, 100)), price: num(c?.price) })).filter((c) => c.seats > 0).slice(0, 10);
     return {
       id, cat: str(t.cat, 20), city: str(t.city, 40), t: str(t.t, 160),
       p: num(t.p), old: num(t.old), r: num(t.r, 0, 5), n: Math.floor(num(t.n)), pop: Math.floor(num(t.pop, 0, 1000)),
       dur: str(t.dur, 60), d: str(t.d, 3000),
       inc: (Array.isArray(t.inc) ? t.inc : []).map((x) => str(x, 200)).filter(Boolean).slice(0, 30),
       img: str(t.img, 300), group: !!t.group, nokids: !!t.nokids, active: t.active !== false,
-      car: !!t.car, carType: t.car ? str(t.carType, 60) : "", carSeats: t.car ? Math.floor(num(t.carSeats, 0, 100)) : 0,
+      car: cars.length > 0, cars,
       tags: [...new Set((Array.isArray(t.tags) ? t.tags : []).map((x) => str(x, 20)).filter(Boolean))].slice(0, 12),
       top: !!t.top, // admin belgilagan — ro‘yxatda doim tepada
     };
@@ -351,6 +354,7 @@ async function handle(request, env, ctx) {
       totalUsd: num(o.totalUsd),
       items: (Array.isArray(o.items) ? o.items : []).slice(0, 30).map((i) => ({
         id: num(i.id), title: str(i.title, 160), date: str(i.date, 10), adults: num(i.adults, 0, 50), kids: num(i.kids, 0, 50), sum: num(i.sum),
+        car: str(i.car, 60), carPrice: num(i.carPrice),
       })),
     };
     const key = "order:" + (9e15 - Date.now()).toString().padStart(16, "0") + ":" + order.no; // yangilari birinchi

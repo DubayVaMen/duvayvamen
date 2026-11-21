@@ -5,6 +5,7 @@ export default {
     "telegram": "https://t.me/dubayvamenbot",
     "channel": "",
     "instagram": "",
+    "youtube": "",
     "email": "info@dubayvamen.uz",
     "aed": 3.6725
   },
