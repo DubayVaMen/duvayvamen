@@ -536,7 +536,7 @@ $("#addTour").onclick = () => {
   if (dirty && !confirm("Saqlanmagan o‘zgarishlar yo‘qoladi. Davom etasizmi?")) return;
   const id = Math.max(0, ...DATA.tours.map(t => t.id)) + 1;
   sel = id; dirty = true;
-  draft = { id, city: cityF !== "all" ? cityF : "Dubay", cat: "city", t: "", p: 0, old: 0, r: 5, n: 0, pop: 50, dur: "", d: "", inc: [], img: "", group: false, nokids: false, active: true, tags: [], top: false, _new: true };
+  draft = { id, city: cityF !== "all" ? cityF : "Dubay", cat: "city", t: "", p: 0, old: 0, r: 0, n: 0, pop: 50, dur: "", d: "", inc: [], img: "", group: false, nokids: false, car: false, carType: "", carSeats: 0, active: true, tags: [], top: false, _new: true };
   $("#v-tours").classList.add("editing");
   renderList(); renderEditor();
   setTimeout(() => $("#editor [name=t]").focus(), 50);
@@ -575,6 +575,12 @@ function renderEditor() {
       <div class="checks">
         <label class="check"><input type="checkbox" name="group" ${t.group ? "checked" : ""}><span>Narx butun guruh uchun<small>Masalan yaxta yoki transfer — kishi soni so‘ralmaydi</small></span></label>
         <label class="check"><input type="checkbox" name="nokids" ${t.nokids ? "checked" : ""}><span>Bolalar narxi yo‘q<small>Belgilanmasa, bolalar uchun 25% chegirma beriladi</small></span></label>
+        <label class="check"><input type="checkbox" name="car" ${t.car ? "checked" : ""}><span>🚗 Mashina bilan<small>Belgilansa, mashina turi va necha kishilik ekanini yozing — saytda ko‘rinadi</small></span></label>
+      </div>
+      <div class="grid2 car-box" id="carBox" ${t.car ? "" : "hidden"}>
+        <label class="f">Mashina turi / o‘lchami<input name="carType" list="carTypes" value="${esc(t.carType || "")}" placeholder="Masalan: Minivan"></label>
+        <label class="f">Necha kishilik<input name="carSeats" type="number" min="1" max="100" step="1" inputmode="numeric" value="${t.carSeats || ""}" placeholder="7"></label>
+        <datalist id="carTypes"><option value="Sedan"><option value="SUV / Jip"><option value="Minivan"><option value="Mikroavtobus"><option value="Avtobus"></datalist>
       </div>
 
       <div class="sec-t">Kategoriyalar</div>
@@ -587,8 +593,6 @@ function renderEditor() {
 
       <div class="sec-t">Ko‘rinish</div>
       <div class="grid3">
-        <label class="f">Reyting <small>0–5</small><input name="r" type="number" min="0" max="5" step="0.1" value="${t.r}"></label>
-        <label class="f">Sharhlar soni<input name="n" type="number" min="0" step="1" value="${t.n}"></label>
         <label class="f">Tartib <small>kattasi tepada</small><input name="pop" type="number" min="0" max="1000" step="1" value="${t.pop}"></label>
       </div>
       <label class="check top-check"><input type="checkbox" name="top" ${t.top ? "checked" : ""}><span>🔥 TOP — ro‘yxatda doim tepada turadi<small>Saytda “TOP” belgisi bilan bo‘limi va kategoriyasining eng boshida chiqadi</small></span></label>
@@ -604,7 +608,7 @@ function renderEditor() {
     </form>`;
   priceHint();
   const f = $("#tf");
-  f.addEventListener("input", () => { readForm(); markDirty(); priceHint(); });
+  f.addEventListener("input", () => { readForm(); markDirty(); priceHint(); $("#carBox").hidden = !f.car.checked; });
   f.addEventListener("submit", e => { e.preventDefault(); save(); });
   $("#back").onclick = () => select(null);
   const photo = $("#photo");
@@ -622,7 +626,8 @@ function readForm() {
   Object.assign(draft, {
     t: f.t.value, city: f.city.value, cat: f.cat.value, p: Number(f.p.value) || 0, old: Number(f.old.value) || 0, dur: f.dur.value,
     group: f.group.checked, nokids: f.nokids.checked, d: f.d.value, inc: f.inc.value.split("\n").map(s => s.trim()).filter(Boolean),
-    r: Number(f.r.value) || 0, n: Number(f.n.value) || 0, pop: Number(f.pop.value) || 0, active: f.active.checked,
+    car: f.car.checked, carType: f.carType.value.trim(), carSeats: Math.floor(Number(f.carSeats.value)) || 0,
+    pop: Number(f.pop.value) || 0, active: f.active.checked,
     top: f.top.checked, tags: [...f.querySelectorAll("[name=tags]:checked")].map(x => x.value)
   });
 }
@@ -670,6 +675,7 @@ async function save() {
   const err = $("#formErr");
   if (!draft.t.trim()) { err.textContent = "Tur nomini kiriting."; $("#tf").t.focus(); return; }
   if (!draft.p) { err.textContent = "Narxni kiriting."; $("#tf").p.focus(); return; }
+  if (draft.car && !draft.carSeats) { err.textContent = "Mashina necha kishilik ekanini kiriting."; $("#tf").carSeats.focus(); return; }
   err.textContent = "";
   const { _new, ...t } = draft;
   const tours = _new ? [...DATA.tours, t] : DATA.tours.map(x => x.id === t.id ? t : x);
