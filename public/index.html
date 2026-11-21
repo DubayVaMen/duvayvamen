@@ -560,6 +560,8 @@ const SORTS = { pop: (a, b) => b.pop - a.pop, low: (a, b) => a.p - b.p, high: (a
 const order = (a, b) => (b.top ? 1 : 0) - (a.top ? 1 : 0) || SORTS[S.sort](a, b);
 const CATEGORIES = window.CATEGORIES || [];
 const inCity = it => it.city === S.city || it.city === "Onlayn";
+// Mashina: "Minivan · 7 kishilik"
+const carText = it => it.car ? [it.carType, it.carSeats ? it.carSeats + " kishilik" : ""].filter(Boolean).join(" · ") || "Mashina bilan" : "";
 const hasTag = (it, id) => (it.tags || []).includes(id);
 function renderCats() {
   const list = CATEGORIES.filter(c => ITEMS.some(it => inCity(it) && hasTag(it, c.id)));
@@ -603,10 +605,10 @@ function cardsHtml(list) {
     return `<button class="card" type="button" data-id="${it.id}">
       <div class="thumb">${photo(it)}
         <span class="tags"><span class="tag">${it.city}</span>${it.top ? `<span class="tag hot">🔥 TOP</span>` : ""}</span>${off ? `<span class="off">−${off}%</span>` : ""}
-        <span class="star-pill"><b>★ ${it.r}</b>${it.n.toLocaleString("ru-RU")} sharh</span></div>
+        ${it.r ? `<span class="star-pill"><b>★ ${it.r}</b>${it.n.toLocaleString("ru-RU")} sharh</span>` : ""}</div>
       <div class="card-body">
         <h3>${it.t}</h3>
-        <div class="meta"><span>${it.dur}</span></div>
+        <div class="meta"><span>${it.dur}</span>${carText(it) ? `<span>🚗 ${esc(carText(it))}</span>` : ""}</div>
         <div class="price"><small>${it.group ? "" : "dan"}</small><strong>${money(it.p)}</strong>${it.old ? `<s>${money(it.old)}</s>` : ""}</div>
       </div></button>`;
   }).join("");
@@ -624,7 +626,7 @@ function openDetail(id) {
   $("#dBody").innerHTML = `
     <div class="d-thumb">${photo(it)}</div>
     <h2 class="d-title" id="dTitle">${it.t}</h2>
-    <div class="meta"><span class="star">★ ${it.r}</span><span>${it.n.toLocaleString("ru-RU")} sharh</span><span>${it.dur}</span><span>${it.city}</span></div>
+    <div class="meta">${it.r ? `<span class="star">★ ${it.r}</span><span>${it.n.toLocaleString("ru-RU")} sharh</span>` : ""}<span>${it.dur}</span><span>${it.city}</span>${carText(it) ? `<span>🚗 ${esc(carText(it))}</span>` : ""}</div>
     <p class="d-desc">${it.d}</p>
     <ul class="incl">${it.inc.map(x => `<li>${x}</li>`).join("")}</ul>
     <div class="field-label">${it.cat === "visa" && it.nokids ? "Safar sanasi" : "Sanani tanlang"}</div>
@@ -832,7 +834,7 @@ function renderHome() {
   $("#featured").hidden = !pick.length;
   $("#featRow").innerHTML = pick.map(it => `<button class="feat" type="button" data-id="${it.id}">${photo(it)}
     <span class="f-top"><span>${esc(it.city)}</span>${it.top ? '<span class="hot">🔥 TOP</span>' : ""}</span>
-    <span class="f-body"><h3>${esc(it.t)}</h3><span class="f-meta"><span><b>★ ${it.r}</b> · ${esc(it.dur)}</span><span>${it.group ? "" : "dan "}<strong>${money(it.p)}</strong></span></span></span></button>`).join("");
+    <span class="f-body"><h3>${esc(it.t)}</h3><span class="f-meta"><span>${it.r ? `<b>★ ${it.r}</b> · ` : ""}${esc(it.dur)}</span><span>${it.group ? "" : "dan "}<strong>${money(it.p)}</strong></span></span></span></button>`).join("");
 }
 $("#featRow").addEventListener("click", e => { const c = e.target.closest(".feat"); if (c) openDetail(Number(c.dataset.id)); });
 $("#fL").onclick = () => $("#featRow").scrollBy({ left: -$("#featRow").clientWidth * 0.8 });

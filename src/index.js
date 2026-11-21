@@ -287,6 +287,7 @@ function cleanData(d) {
       dur: str(t.dur, 60), d: str(t.d, 3000),
       inc: (Array.isArray(t.inc) ? t.inc : []).map((x) => str(x, 200)).filter(Boolean).slice(0, 30),
       img: str(t.img, 300), group: !!t.group, nokids: !!t.nokids, active: t.active !== false,
+      car: !!t.car, carType: t.car ? str(t.carType, 60) : "", carSeats: t.car ? Math.floor(num(t.carSeats, 0, 100)) : 0,
       tags: [...new Set((Array.isArray(t.tags) ? t.tags : []).map((x) => str(x, 20)).filter(Boolean))].slice(0, 12),
       top: !!t.top, // admin belgilagan — ro‘yxatda doim tepada
     };
