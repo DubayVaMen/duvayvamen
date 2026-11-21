@@ -474,7 +474,7 @@ footer a{color:var(--ink)}
       <p>Aloqa uchun: <a href="tel:+971553760330" id="fPhone">+971 55 376 0330</a></p>
     </div>
     <nav aria-label="Sayt bo‘limlari"><b>Sayt</b><a href="#katalog">Turlar va biletlar</a><a href="#how">Qanday ishlaydi</a><a href="#guide">Safar maslahatlari</a></nav>
-    <div id="fPages" hidden><b>Bizning sahifalar</b><a href="#" target="_blank" rel="noopener" id="fCh" hidden>Telegram kanal</a><a href="#" target="_blank" rel="noopener" id="fIg" hidden>Instagram</a></div>
+    <div id="fPages" hidden><b>Bizning sahifalar</b><a href="#" target="_blank" rel="noopener" id="fCh" hidden>Telegram kanal</a><a href="#" target="_blank" rel="noopener" id="fIg" hidden>Instagram</a><a href="#" target="_blank" rel="noopener" id="fYt" hidden>YouTube</a></div>
   </div>
   <div class="wrap f-bottom"><span>© <span id="fYear">2026</span> dubayvamen.uz</span><span>Narxlar USD da, AED kursi bo‘yicha hisoblanadi</span></div>
 </footer>
@@ -900,7 +900,8 @@ function applySettings(s) {
   // “Bizning sahifalar”: faqat admin to‘ldirgan havolalar ko‘rinadi
   if (s.channel) { $("#fCh").href = s.channel; $("#fCh").hidden = false; }
   if (s.instagram) { $("#fIg").href = s.instagram; $("#fIg").hidden = false; }
-  $("#fPages").hidden = !(s.channel || s.instagram);
+  if (s.youtube) { $("#fYt").href = s.youtube; $("#fYt").hidden = false; }
+  $("#fPages").hidden = !(s.channel || s.instagram || s.youtube);
 }
 async function load() {
   $("#grid").innerHTML = `<div class="empty">Yuklanmoqda…</div>`;
