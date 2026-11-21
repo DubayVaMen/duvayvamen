@@ -73,7 +73,7 @@ header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;backgroun
 .hero-search .btn{height:52px;padding:0 26px;border-radius:13px}
 .pulse{width:8px;height:8px;border-radius:50%;background:#4ADE80;box-shadow:0 0 0 0 rgba(74,222,128,.6);animation:pulse 2s infinite}
 @keyframes pulse{70%{box-shadow:0 0 0 8px rgba(74,222,128,0)}100%{box-shadow:0 0 0 0 rgba(74,222,128,0)}}
-.hero-stats{display:grid;grid-template-columns:repeat(4,auto);justify-content:start;gap:12px 40px;margin:40px 0 0;padding:0}
+.hero-stats{display:grid;grid-template-columns:repeat(3,auto);justify-content:start;gap:12px 40px;margin:40px 0 0;padding:0}
 .hero-stats div{border-left:2px solid rgba(255,255,255,.35);padding-left:14px}
 .hero-stats dt{font-size:13px;color:rgba(255,255,255,.75);font-weight:600;order:2}
 .hero-stats dd{order:1}
@@ -367,7 +367,6 @@ footer a{color:var(--ink)}
       <div class="hero-quick" id="quick"></div>
       <dl class="hero-stats" aria-label="Biz haqimizda raqamlarda">
         <div><dt>Turlar va biletlar</dt><dd id="stTours">—</dd></div>
-        <div><dt>O‘rtacha reyting</dt><dd id="stRating">—</dd></div>
         <div><dt>Mijozlar sharhlari</dt><dd id="stReviews">—</dd></div>
         <div><dt>Kassadan arzon</dt><dd>90%</dd></div>
       </dl>
@@ -825,9 +824,8 @@ if (TG) {
 /* ===== Bosh sahifa: ko‘rsatkichlar va tavsiya etilgan turlar ===== */
 function renderHome() {
   // ko‘rsatkichlar haqiqiy katalogdan hisoblanadi
-  const rated = ITEMS.filter(it => it.r > 0), reviews = ITEMS.reduce((s, it) => s + (it.n || 0), 0);
+  const reviews = ITEMS.reduce((s, it) => s + (it.n || 0), 0);
   $("#stTours").textContent = ITEMS.length + "+";
-  $("#stRating").textContent = rated.length ? "★ " + (rated.reduce((s, it) => s + it.r, 0) / rated.length).toFixed(1) : "—";
   $("#stReviews").textContent = reviews >= 1000 ? (reviews / 1000).toFixed(reviews >= 10000 ? 0 : 1).replace(".", ",") + " ming+" : String(reviews);
   // TOP turlar, yetmasa eng mashhurlari bilan to‘ldiriladi
   const pick = [...ITEMS.filter(it => it.top).sort((a, b) => b.pop - a.pop), ...ITEMS.filter(it => !it.top && it.cat !== "visa").sort((a, b) => b.pop - a.pop)].slice(0, 8);
