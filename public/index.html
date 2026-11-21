@@ -567,7 +567,7 @@ function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<":
 function renderTabs() {
   $("#tabs").innerHTML = CITIES.map(c =>
     `<button class="tab" type="button" data-city="${c.id}" aria-pressed="${!S.q && S.city === c.id}"><span aria-hidden="true">${c.ico}</span>${c.id}<small>${ITEMS.filter(it => it.city === c.id).length}</small></button>`).join("");
-  $("#quick").innerHTML = ["Cho‘l safari", "Burj Khalifa", "Aquapark", "Viza"].map(q =>
+  $("#quick").innerHTML = ["Cho‘l safari", "Burj Khalifa", "Aquapark"].map(q =>
     `<button type="button" data-q="${q}">${q}</button>`).join("");
 }
 const SORTS = { pop: (a, b) => b.pop - a.pop, low: (a, b) => a.p - b.p, high: (a, b) => b.p - a.p };
