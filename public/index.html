@@ -414,7 +414,6 @@ footer a{color:var(--ink)}
               <option value="pop">Mashhurlari</option>
               <option value="low">Avval arzonlari</option>
               <option value="high">Avval qimmatlari</option>
-              <option value="rate">Reyting bo‘yicha</option>
             </select>
           </div>
         </div>
@@ -571,7 +570,7 @@ function renderTabs() {
   $("#quick").innerHTML = ["Cho‘l safari", "Burj Khalifa", "Aquapark", "Viza"].map(q =>
     `<button type="button" data-q="${q}">${q}</button>`).join("");
 }
-const SORTS = { pop: (a, b) => b.pop - a.pop, low: (a, b) => a.p - b.p, high: (a, b) => b.p - a.p, rate: (a, b) => b.r - a.r };
+const SORTS = { pop: (a, b) => b.pop - a.pop, low: (a, b) => a.p - b.p, high: (a, b) => b.p - a.p };
 // admin "TOP" deb belgilagan turlar har doim tepada
 const order = (a, b) => (b.top ? 1 : 0) - (a.top ? 1 : 0) || SORTS[S.sort](a, b);
 const CATEGORIES = window.CATEGORIES || [];
@@ -621,7 +620,7 @@ function cardsHtml(list) {
     return `<button class="card" type="button" data-id="${it.id}">
       <div class="thumb">${photo(it)}
         <span class="tags"><span class="tag">${it.city}</span>${it.top ? `<span class="tag hot">🔥 TOP</span>` : ""}</span>${off ? `<span class="off">−${off}%</span>` : ""}
-        ${it.r ? `<span class="star-pill"><b>★ ${it.r}</b>${it.n.toLocaleString("ru-RU")} sharh</span>` : ""}</div>
+</div>
       <div class="card-body">
         <h3>${it.t}</h3>
         <div class="meta"><span>${it.dur}</span>${carText(it) ? `<span>🚗 ${esc(carText(it))}</span>` : ""}</div>
@@ -642,7 +641,7 @@ function openDetail(id) {
   $("#dBody").innerHTML = `
     <div class="d-thumb">${photo(it)}</div>
     <h2 class="d-title" id="dTitle">${it.t}</h2>
-    <div class="meta">${it.r ? `<span class="star">★ ${it.r}</span><span>${it.n.toLocaleString("ru-RU")} sharh</span>` : ""}<span>${it.dur}</span><span>${it.city}</span></div>
+    <div class="meta"><span>${it.dur}</span><span>${it.city}</span></div>
     <p class="d-desc">${it.d}</p>
     <ul class="incl">${it.inc.map(x => `<li>${x}</li>`).join("")}</ul>
     <div class="field-label">${it.cat === "visa" && it.nokids ? "Safar sanasi" : "Sanani tanlang"}</div>
@@ -859,7 +858,7 @@ function renderHome() {
   $("#featured").hidden = !pick.length;
   $("#featRow").innerHTML = pick.map(it => `<button class="feat" type="button" data-id="${it.id}">${photo(it)}
     <span class="f-top"><span>${esc(it.city)}</span>${it.top ? '<span class="hot">🔥 TOP</span>' : ""}</span>
-    <span class="f-body"><h3>${esc(it.t)}</h3><span class="f-meta"><span>${it.r ? `<b>★ ${it.r}</b> · ` : ""}${esc(it.dur)}</span><span>${it.group ? "" : "dan "}<strong>${money(it.p)}</strong></span></span></span></button>`).join("");
+    <span class="f-body"><h3>${esc(it.t)}</h3><span class="f-meta"><span>${esc(it.dur)}</span><span>${it.group ? "" : "dan "}<strong>${money(it.p)}</strong></span></span></span></button>`).join("");
 }
 $("#featRow").addEventListener("click", e => { const c = e.target.closest(".feat"); if (c) openDetail(Number(c.dataset.id)); });
 $("#fL").onclick = () => $("#featRow").scrollBy({ left: -$("#featRow").clientWidth * 0.8 });
